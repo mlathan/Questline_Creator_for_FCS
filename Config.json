@@ -1,0 +1,14 @@
+{
+  "Items": [
+    "Sword",
+    "Dagger",
+    "Axe",
+    "Hammer",
+    "Test",
+    "Item"
+  ],
+  "QuestCategory": [
+    "Main Quest",
+    "Side Quest"
+  ]
+}

@@ -762,6 +762,9 @@ void WriteToConfigJson()
 
 void ShowItemCatalog(bool* show = nullptr)
 {
+    static int listbox_item_current = 1;
+
+    ImGui::SetNextWindowSize(ImVec2(350, 400));
     if (!ImGui::Begin("Item Catalog", show))
     {
         ImGui::End();
@@ -770,6 +773,12 @@ void ShowItemCatalog(bool* show = nullptr)
 
     if (ImGui::Button("Add Item"))
         ImGui::OpenPopup("Add Item");
+    ImGui::SameLine();
+    if (ImGui::Button("Remove Item"))
+    {
+        ItemVector.erase(ItemVector.begin() + listbox_item_current, ItemVector.begin() + listbox_item_current + 1);
+        WriteToConfigJson();
+    }
 
     if (ImGui::BeginPopupModal("Add Item", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
@@ -792,14 +801,16 @@ void ShowItemCatalog(bool* show = nullptr)
 
     std::vector<char*> ItemArray;
     std::transform(ItemVector.begin(), ItemVector.end(), std::back_inserter(ItemArray), convert);
-    static int listbox_item_current = 1;
-    ImGui::ListBox("##ItemCatalog", &listbox_item_current, ItemArray.data(), ItemVector.size(), 8);
+    ImGui::ListBox("##ItemCatalog", &listbox_item_current, ItemArray.data(), ItemVector.size(), 5);
 
     ImGui::End();
 }
 
 void ShowCategoryCatalog(bool* show = nullptr)
 {
+    static int listbox_item_current = 1;
+
+    ImGui::SetNextWindowSize(ImVec2(350, 400));
     if (!ImGui::Begin("Quest Category Catalog", show))
     {
         ImGui::End();
@@ -808,6 +819,12 @@ void ShowCategoryCatalog(bool* show = nullptr)
 
     if (ImGui::Button("Add Item"))
         ImGui::OpenPopup("Add Item");
+    ImGui::SameLine();
+    if (ImGui::Button("Remove Item"))
+    {
+        QuestCategoryVector.erase(QuestCategoryVector.begin() + listbox_item_current, QuestCategoryVector.begin() + listbox_item_current + 1);
+        WriteToConfigJson();
+    }
 
     if (ImGui::BeginPopupModal("Add Item", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
@@ -830,7 +847,6 @@ void ShowCategoryCatalog(bool* show = nullptr)
 
     std::vector<char*> ItemArray;
     std::transform(QuestCategoryVector.begin(), QuestCategoryVector.end(), std::back_inserter(ItemArray), convert);
-    static int listbox_item_current = 1;
     ImGui::ListBox("##ItemCatalog", &listbox_item_current, ItemArray.data(), QuestCategoryVector.size(), 8);
 
     ImGui::End();
@@ -1446,6 +1462,11 @@ void ExportToJson()
     o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
 }
 
+void OpenFromJson()
+{
+
+}
+
 void ShowMenuFile()
 {
     if (ImGui::MenuItem("New")) 
@@ -1454,7 +1475,7 @@ void ShowMenuFile()
     }
     if (ImGui::MenuItem("Open", "Ctrl+O")) 
     {
-
+        OpenFromJson();
     }
     if (ImGui::BeginMenu("Open Recent"))
     {
@@ -1462,11 +1483,7 @@ void ShowMenuFile()
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")) 
     {
-        
-    }
-    if (ImGui::MenuItem("Save As..")) 
-    {
-    
+        ExportToJson();
     }
 
     ImGui::Separator();

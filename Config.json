@@ -1,11 +1,8 @@
 {
   "Items": [
-    "Sword",
-    "Dagger",
     "Axe",
-    "Hammer",
-    "Test",
-    "Item"
+    "Sword",
+    "Hammer"
   ],
   "QuestCategory": [
     "Main Quest",

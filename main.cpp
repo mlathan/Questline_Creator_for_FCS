@@ -7,11 +7,15 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "external/ImGui/imgui_internal.h"
 
+
 #include <string>
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <utility>
+#include <afxdlgs.h>
+
+#define _AFXDLL
 
 #include "QuestClass.h"
 #include <iostream>
@@ -1464,7 +1468,78 @@ void ExportToJson()
 
 void OpenFromJson()
 {
+    static char BASED_CODE szFilter[] = "Json Node Files (*.json)|*.json|";
 
+    CFileDialog dlg(true, NULL, NULL, NULL, szFilter, NULL);
+
+    auto result = dlg.DoModal();
+    if (result != IDOK) 
+        return;
+    else
+    {
+        try
+        {
+            std::ifstream f(dlg.GetPathName());
+            nlohmann::ordered_json json;
+            
+            json = nlohmann::ordered_json::parse(f);
+
+            for (auto& value : json)
+            {
+                Node* node = SpawnQuestNode();
+                node->quest.name = value["Name"];
+                node->quest.quest_id = value["QuestID"];
+                node->quest.quest_name = value["QuestName"];
+                node->quest.area_name = value["AreaName"];
+                node->quest.recommended_level = value["RecommendedLevel"];
+                node->quest.description = value["Description"];
+                nlohmann::ordered_json obj = nlohmann::ordered_json::array();
+                obj = value["Objectives"];
+                for (auto& objects : obj)
+                {
+                    Objective objective;
+                    objective.objective_id = objects["Objective_ID"];
+                    objective.objective_description = objects["ObjectiveDescription"];
+                    nlohmann::ordered_json objTips = nlohmann::ordered_json::array();
+                    objTips = objects["ObjectiveTips"];
+                    for (auto& tips : objTips)
+                    {
+                        objective.objective_tips.push_back(tips);
+                    }
+                    objective.current_amount = objects["CurrentAmount"];
+                    objective.required_amount = objects["RequiredAmount"];
+                    objective.has_world_marker = objects["HasWorldMarker"];
+                    objective.objective_complete_another_quest = objects["ObjectiveCompleteAnotherQuest"];
+                    objective.quest_id = objects["QuestID"];
+                    node->quest.objectives.push_back(objective);
+                }
+                Rewards reward;
+                nlohmann::ordered_json rewards;
+                rewards = value["Rewards"];
+                for (auto& re : rewards)
+                {
+                    reward.experience = re["Experience"];
+                    reward.gold = re["Gold"];
+
+                    Items item;
+                    nlohmann::ordered_json items;
+                    items = re["Items"];
+                    for (auto& it : items)
+                    {
+                        item.item = it;
+                    }
+
+
+                    reward.items.push_back(item);
+                }
+
+
+            }
+
+
+        }
+        catch (...) {}
+    }
 }
 
 void ShowMenuFile()

@@ -156,8 +156,10 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy /Y "$(ProjectDir)Blueprints.json" "$(TargetDir)Blueprints.json"
+copy /Y "$(ProjectDir)Config.json" "$(TargetDir)Config.json"
+xcopy /q /y "$(ProjectDir)data\*.*" "$(TargetDir)data\*.*"
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -181,8 +183,10 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x86</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy /Y "$(ProjectDir)Blueprints.json" "$(TargetDir)Blueprints.json"
+copy /Y "$(ProjectDir)Config.json" "$(TargetDir)Config.json"
+xcopy /q /y "$(ProjectDir)data\*.*" "$(TargetDir)data\*.*"
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -201,8 +205,10 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy /Y "$(ProjectDir)Blueprints.json" "$(TargetDir)Blueprints.json"
+copy /Y "$(ProjectDir)Config.json" "$(TargetDir)Config.json"
+xcopy /q /y "$(ProjectDir)data\*.*" "$(TargetDir)data\*.*"
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -226,8 +232,10 @@
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy /Y "$(ProjectDir)Blueprints.json" "$(TargetDir)Blueprints.json"
+copy /Y "$(ProjectDir)Config.json" "$(TargetDir)Config.json"
+xcopy /q /y "$(ProjectDir)data\*.*" "$(TargetDir)data\*.*"
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -117,6 +117,7 @@ struct Node
     Rewards rewards;
     Items items;
     std::string Typ;
+    std::string QuestId;
 
 
     std::string State;
@@ -156,6 +157,7 @@ static QuestType::QuestList s_QuestList;
 
 static std::vector<std::string> ItemVector;
 static std::vector<std::string> QuestCategoryVector;
+static std::vector<std::string> RecentlyOpenedVector;
 
 
 struct NodeIdLess
@@ -241,6 +243,25 @@ static Pin* FindPin(ed::PinId id)
     return nullptr;
 }
 
+static Node* FindNodeFromPin(ed::PinId id)
+{
+    if (!id)
+        return nullptr;
+
+    for (auto& node : s_Nodes)
+    {
+        for (auto& pin : node.Inputs)
+            if (pin.ID == id)
+                return &node;
+
+        for (auto& pin : node.Outputs)
+            if (pin.ID == id)
+                return &node;
+    }
+
+    return nullptr;
+}
+
 static bool IsPinLinked(ed::PinId id)
 {
     if (!id)
@@ -262,8 +283,6 @@ static bool CanCreateLink(Pin* a, Pin* b)
 }
 
 #pragma region NodeConfig
-
-int quest_count = 0;
 
 static void BuildNode(Node* node)
 {
@@ -311,8 +330,6 @@ static Node* SpawnQuestNode()
     s_Nodes.back().quest.quest_name = "Test Quest";
 
     s_QuestList.push_back(newQuest);
-
-    quest_count++;
 
     BuildNode(&s_Nodes.back());
 
@@ -593,6 +610,15 @@ void Application_Initialize()
         {
             QuestCategoryVector.push_back(cat);
         }
+
+        nlohmann::ordered_json rec = nlohmann::ordered_json::object();
+
+        rec = json["Recently"];
+
+        for (auto& re : rec)
+        {
+            RecentlyOpenedVector.push_back(re);
+        }
     }
 
     //auto& io = ImGui::GetIO();
@@ -750,6 +776,7 @@ void WriteToConfigJson()
 
     nlohmann::ordered_json itemsJson = nlohmann::json::array();
     nlohmann::ordered_json categoryJson = nlohmann::json::array();
+    nlohmann::ordered_json recentlyOpened = nlohmann::json::array();
 
     for (auto& items : ItemVector)
         itemsJson.push_back(items);
@@ -757,8 +784,12 @@ void WriteToConfigJson()
     for (auto& cats : QuestCategoryVector)
         categoryJson.push_back(cats);
 
+    for (auto& op : RecentlyOpenedVector)
+        recentlyOpened.push_back(op);
+
     json["Items"] = itemsJson;
     json["QuestCategory"] = categoryJson;
+    json["Recently"] = recentlyOpened;
 
     std::ofstream o("Config.json");
     o << std::setw(json.size()) << json << std::endl;
@@ -1323,12 +1354,12 @@ void SetRequiredQuests(Node& node)
                 {
                     if (input.Name == "Required Quest")
                     {
-                        auto startNode = FindPin(link.StartPinID);
+                        auto startNode = FindNodeFromPin(link.StartPinID);
 
-                        if (!std::count(startNode->Node->quest.quests_to_add_after_completion.begin(),
-                            startNode->Node->quest.quests_to_add_after_completion.end(), input.Node->quest.quest_id))
+                        if (!std::count(startNode->quest.quests_to_add_after_completion.begin(),
+                            startNode->quest.quests_to_add_after_completion.end(), input.Node->quest.quest_id))
                         {
-                            startNode->Node->quest.quests_to_add_after_completion.push_back(input.Node->quest.quest_id);
+                            startNode->quest.quests_to_add_after_completion.push_back(input.Node->quest.quest_id);
 
                         }
 
@@ -1351,18 +1382,174 @@ void SetQuestComplete(Node& node)
                 {
                     if (output.Name == "Quest to add after completion")
                     {
-                        auto endNode = FindPin(link.EndPinID);
+                        auto endNode = FindNodeFromPin(link.EndPinID);
 
-                        if (!std::count(endNode->Node->quest.required_quests.begin(),
-                            endNode->Node->quest.required_quests.end(), output.Node->quest.quest_id))
+                        if (!std::count(endNode->quest.required_quests.begin(),
+                            endNode->quest.required_quests.end(), output.Node->quest.quest_id))
                         {
-                            endNode->Node->quest.required_quests.push_back(output.Node->quest.quest_id);
+                            endNode->quest.required_quests.push_back(output.Node->quest.quest_id);
 
                         }
                     }
                 }
             }
         }
+    }
+}
+
+void SetCharacterLink(Node& node)
+{
+    for (auto& output : node.Outputs)
+    {
+        if (IsPinLinked(output.ID) )
+        {
+            for (auto& link : s_Links)
+            {
+                if (link.StartPinID == output.ID)
+                {
+                    auto endNode = FindNodeFromPin(link.EndPinID);
+
+                    node.QuestId = endNode->quest.quest_id;
+                }
+            }
+        }
+    }
+}
+
+void SaveWork()
+{
+    nlohmann::ordered_json jsonObjects = nlohmann::json::array();
+
+    for (auto& node : s_Nodes)
+    {
+        if (node.Typ == "Quest")
+        {
+            SetRequiredQuests(node);
+            SetQuestComplete(node);
+        }
+        if (node.Typ == "Character")
+        {
+            SetCharacterLink(node);
+        }
+    }
+
+    for (auto& node : s_Nodes)
+    {
+        if (node.Typ == "Quest")
+        {
+            nlohmann::ordered_json j = nlohmann::json::object();
+
+            ImVec2 pos = ed::GetNodePosition(node.ID);
+
+            j["PositionX"] = pos.x;
+            j["PositionY"] = pos.y;
+            j["Typ"] = "Quest";
+
+            j["Name"] = node.quest.name;
+            j["QuestID"] = node.quest.quest_id;
+            j["QuestName"] = node.quest.quest_name;
+            j["Category"] = node.quest.category;
+            j["AreaName"] = node.quest.area_name;
+            j["RecommendedLevel"] = node.quest.recommended_level;
+            j["Description"] = node.quest.description;
+
+            nlohmann::ordered_json objectives = nlohmann::json::array();
+
+            for (auto& obj : node.quest.objectives)
+            {
+                nlohmann::ordered_json jObj = nlohmann::json::object();
+
+                jObj["Objective_ID"] = obj.objective_id;
+                jObj["ObjectiveDescription"] = obj.objective_description;
+
+                nlohmann::ordered_json objectiveTips = nlohmann::json::array();
+
+                for (auto& objTips : obj.objective_tips)
+                {
+                    objectiveTips.push_back(objTips);
+                }
+
+                jObj["ObjectiveTips"] = objectiveTips;
+
+                jObj["CurrentAmount"] = 0;
+                jObj["RequiredAmount"] = obj.required_amount;
+                jObj["HasWorldMarker?"] = obj.has_world_marker;
+                jObj["ObjectiveCompleteAnotherQuest"] = obj.objective_complete_another_quest;
+                jObj["QuestID"] = obj.quest_id;
+
+                objectives.push_back(jObj);
+            }
+
+            j["Objectives"] = objectives;
+
+            nlohmann::ordered_json rewards = nlohmann::json::object();
+
+            rewards["Experience"] = node.quest.rewards.experience;
+            rewards["Gold"] = node.quest.rewards.gold;
+
+            nlohmann::ordered_json items = nlohmann::json::object();
+
+            for (auto& item : node.quest.rewards.items)
+            {
+                items[item.item] = item.amount;
+            }
+
+            rewards["Items"] = items;
+
+            j["Rewards"] = rewards;
+
+            nlohmann::ordered_json requiredQuest = nlohmann::json::array();
+
+            for (auto& reqQuest : node.quest.required_quests)
+            {
+                requiredQuest.push_back(reqQuest);
+            }
+
+            j["RequiredQuests"] = requiredQuest;
+
+            nlohmann::ordered_json questToAdd = nlohmann::json::array();
+
+            for (auto& reqQuest : node.quest.quests_to_add_after_completion)
+            {
+                questToAdd.push_back(reqQuest);
+            }
+
+            j["QuestsToAddAfterCompletion"] = questToAdd;
+
+            j["CanQuestBeAborted?"] = node.quest.can_quest_be_aborted;
+
+            jsonObjects.push_back(j);
+        }
+
+        if (node.Typ == "Character")
+        {
+            nlohmann::ordered_json j = nlohmann::json::object();
+
+            ImVec2 pos = ed::GetNodePosition(node.ID);
+
+            j["PositionX"] = pos.x;
+            j["PositionY"] = pos.y;
+            j["Typ"] = "Character";
+
+            j["Name"] = node.Name;
+            j["QuestId"] = node.QuestId;
+
+            jsonObjects.push_back(j);
+        }
+    }
+
+    static char BASED_CODE szFilter[] = "Json Node Files (*.json)|*.json|";
+
+    CFileDialog dlg(FALSE, CString(".json"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter);
+
+    auto result = dlg.DoModal();
+    if (result != IDOK) 
+        return;
+    else
+    {
+        std::string filename = dlg.GetPathName().GetString();
+        std::ofstream o(filename);
+        o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
     }
 }
 
@@ -1376,6 +1563,10 @@ void ExportToJson()
         {
             SetRequiredQuests(node);
             SetQuestComplete(node);
+        }
+        if (node.Typ == "Character")
+        {
+            SetCharacterLink(node);
         }
     }
 
@@ -1462,81 +1653,180 @@ void ExportToJson()
         }
     }
 
-    std::ofstream o("pretty.json");
-    o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
-}
-
-void OpenFromJson()
-{
     static char BASED_CODE szFilter[] = "Json Node Files (*.json)|*.json|";
 
-    CFileDialog dlg(true, NULL, NULL, NULL, szFilter, NULL);
+    CFileDialog dlg(FALSE, CString(".json"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter);
 
     auto result = dlg.DoModal();
     if (result != IDOK) 
         return;
     else
     {
+        std::string filename = dlg.GetPathName().GetString();
+        std::ofstream o(filename);
+        o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
+    }
+}
+
+void CreateLinks()
+{
+    for (auto& node : s_Nodes)
+    {
+        if (node.quest.required_quests.size() > 0)
+        {
+            for (int t = 0; t < node.quest.required_quests.size(); ++t)
+            {
+                for (auto& search : s_Nodes)
+                {
+                    if (search.quest.quest_id == node.quest.required_quests.at(t))
+                    {
+                        s_Links.emplace_back(Link(GetNextLinkId(), search.Outputs[1].ID, node.Inputs[1].ID));
+                        s_Links.back().Color = GetIconColor(search.Outputs[1].Type);
+                        s_Links.emplace_back(Link(GetNextLinkId(), search.Outputs[0].ID, node.Inputs[0].ID));
+                    }
+                }
+            }
+        }
+
+        if (node.Typ == "Character")
+        {
+            for (auto& search : s_Nodes)
+            {
+                if (search.quest.quest_id == node.QuestId)
+                {
+                    s_Links.emplace_back(Link(GetNextLinkId(), node.Outputs[0].ID, search.Inputs[0].ID));
+                }
+            }
+        }
+    }
+}
+
+void OpenFromJson(std::string path = "")
+{
+    static char BASED_CODE szFilter[] = "Json Node Files (*.json)|*.json|";
+
+    std::string pathName;
+
+    if (path == "")
+    {
+        CFileDialog dlg(true, NULL, NULL, NULL, szFilter, NULL);
+
+        auto result = dlg.DoModal();
+        if (result != IDOK)
+            return;
+        else
+            pathName = dlg.GetPathName().GetString();
+    }
+    else
+    {
+        pathName = path;
+    }
+
+
+    if(pathName != "")
+    {
         try
         {
-            std::ifstream f(dlg.GetPathName());
+            std::ifstream f(pathName);
             nlohmann::ordered_json json;
             
             json = nlohmann::ordered_json::parse(f);
 
             for (auto& value : json)
             {
-                Node* node = SpawnQuestNode();
-                node->quest.name = value["Name"];
-                node->quest.quest_id = value["QuestID"];
-                node->quest.quest_name = value["QuestName"];
-                node->quest.area_name = value["AreaName"];
-                node->quest.recommended_level = value["RecommendedLevel"];
-                node->quest.description = value["Description"];
-                nlohmann::ordered_json obj = nlohmann::ordered_json::array();
-                obj = value["Objectives"];
-                for (auto& objects : obj)
+                if (value["PositionX"].is_null())
+                    break;
+
+                if (value["Typ"] == "Quest")
                 {
-                    Objective objective;
-                    objective.objective_id = objects["Objective_ID"];
-                    objective.objective_description = objects["ObjectiveDescription"];
-                    nlohmann::ordered_json objTips = nlohmann::ordered_json::array();
-                    objTips = objects["ObjectiveTips"];
-                    for (auto& tips : objTips)
+                    Node* node = SpawnQuestNode();
+
+                    ImVec2 pos = ImVec2(value["PositionX"], value["PositionY"]);
+                    ed::SetNodePosition(node->ID, pos);
+
+                    node->quest.name = value["Name"];
+                    node->quest.quest_id = value["QuestID"];
+                    node->quest.quest_name = value["QuestName"];
+                    node->quest.area_name = value["AreaName"];
+                    node->quest.recommended_level = value["RecommendedLevel"];
+                    node->quest.description = value["Description"];
+                    nlohmann::ordered_json obj = nlohmann::ordered_json::array();
+                    obj = value["Objectives"];
+                    for (auto& objects : obj)
                     {
-                        objective.objective_tips.push_back(tips);
+                        Objective objective;
+                        objective.objective_id = objects["Objective_ID"];
+                        objective.objective_description = objects["ObjectiveDescription"];
+                        nlohmann::ordered_json objTips = nlohmann::ordered_json::array();
+                        objTips = objects["ObjectiveTips"];
+                        for (auto& tips : objTips)
+                        {
+                            objective.objective_tips.push_back(tips);
+                        }
+                        objective.current_amount = objects["CurrentAmount"];
+                        objective.required_amount = objects["RequiredAmount"];
+                        objective.has_world_marker = objects["HasWorldMarker?"];
+                        objective.objective_complete_another_quest = objects["ObjectiveCompleteAnotherQuest"];
+                        objective.quest_id = objects["QuestID"];
+                        node->quest.objectives.push_back(objective);
                     }
-                    objective.current_amount = objects["CurrentAmount"];
-                    objective.required_amount = objects["RequiredAmount"];
-                    objective.has_world_marker = objects["HasWorldMarker"];
-                    objective.objective_complete_another_quest = objects["ObjectiveCompleteAnotherQuest"];
-                    objective.quest_id = objects["QuestID"];
-                    node->quest.objectives.push_back(objective);
-                }
-                Rewards reward;
-                nlohmann::ordered_json rewards;
-                rewards = value["Rewards"];
-                for (auto& re : rewards)
-                {
-                    reward.experience = re["Experience"];
-                    reward.gold = re["Gold"];
+                    Rewards reward;
+                    nlohmann::ordered_json rewards;
+                    rewards = value["Rewards"];
+
+                    reward.experience = rewards["Experience"];
+                    reward.gold = rewards["Gold"];
 
                     Items item;
                     nlohmann::ordered_json items;
-                    items = re["Items"];
-                    for (auto& it : items)
+                    items = rewards["Items"];
+                    for (nlohmann::ordered_json::iterator it = items.begin(); it != items.end(); ++it)
                     {
-                        item.item = it;
+                        item.item = it.key();
+                        item.amount = it.value();
+                        reward.items.push_back(item);
                     }
 
+                    node->quest.rewards = reward;
 
-                    reward.items.push_back(item);
+                    nlohmann::ordered_json requiredQuest = nlohmann::json::array();
+
+                    requiredQuest = value["RequiredQuests"];
+                    for (auto& req : requiredQuest)
+                    {
+                        node->quest.required_quests.push_back(req);
+                    }
+
+                    nlohmann::ordered_json questToAdd = nlohmann::json::array();
+
+                    questToAdd = value["QuestsToAddAfterCompletion"];
+                    for (auto& q : questToAdd)
+                    {
+                        node->quest.quests_to_add_after_completion.push_back(q);
+                    }
+
+                    node->quest.can_quest_be_aborted = value["CanQuestBeAborted?"];
                 }
 
+                if (value["Typ"] == "Character")
+                {
+                    Node* node = SpawnQuestCharacterNode();
 
+                    node->Name = value["Name"];
+                    ImVec2 pos = ImVec2(value["PositionX"], value["PositionY"]);
+                    ed::SetNodePosition(node->ID, pos);
+
+                    node->QuestId = value["QuestId"];
+                }
             }
 
+            CreateLinks();
 
+            if (std::find(RecentlyOpenedVector.begin(), RecentlyOpenedVector.end(), pathName) == RecentlyOpenedVector.end())
+            {
+                RecentlyOpenedVector.push_back(pathName);
+                WriteToConfigJson();
+            }
         }
         catch (...) {}
     }
@@ -1554,11 +1844,19 @@ void ShowMenuFile()
     }
     if (ImGui::BeginMenu("Open Recent"))
     {
+        for (auto& item : RecentlyOpenedVector)
+        {
+            if (ImGui::MenuItem(item.c_str()))
+            {
+                OpenFromJson(item);
+            }
+        }
+
         ImGui::EndMenu();
     }
     if (ImGui::MenuItem("Save", "Ctrl+S")) 
     {
-        ExportToJson();
+        SaveWork();
     }
 
     ImGui::Separator();
@@ -1693,8 +1991,7 @@ void Application_Frame()
                 if (node.Name == "Quest")
                 {
                     std::string q1("QuestID: (");
-                    //std::string qId(node.quest.quest_id.c_str());
-                    std::string qId = std::to_string(node.Color);
+                    std::string qId(node.quest.quest_id.c_str());
                     std::string q2(")");
                     ImGui::Spring(0);
                     ImGui::TextUnformatted(node.Name.c_str()); ImGui::SameLine(); ImGui::TextUnformatted((char*)std::string(q1 + qId + q2).c_str());
@@ -1934,17 +2231,6 @@ void Application_Frame()
 
             auto drawList = ed::GetNodeBackgroundDrawList(node.ID);
 
-            //const auto fringeScale = ImGui::GetStyle().AntiAliasFringeScale;
-            //const auto unitSize    = 1.0f / fringeScale;
-
-            //const auto ImDrawList_AddRect = [](ImDrawList* drawList, const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners, float thickness)
-            //{
-            //    if ((col >> 24) == 0)
-            //        return;
-            //    drawList->PathRect(a, b, rounding, rounding_corners);
-            //    drawList->PathStroke(col, true, thickness);
-            //};
-
             drawList->AddRectFilled(inputsRect.GetTL() + ImVec2(0, 1), inputsRect.GetBR(),
                 IM_COL32((int)(255 * pinBackground.x), (int)(255 * pinBackground.y), (int)(255 * pinBackground.z), inputAlpha), 4.0f, 12);
             //ImGui::PushStyleVar(ImGuiStyleVar_AntiAliasFringeScale, 1.0f);
@@ -2090,37 +2376,6 @@ void Application_Frame()
             ed::PopStyleColor(4);
 
             auto drawList = ed::GetNodeBackgroundDrawList(node.ID);
-
-            //const auto fringeScale = ImGui::GetStyle().AntiAliasFringeScale;
-            //const auto unitSize    = 1.0f / fringeScale;
-
-            //const auto ImDrawList_AddRect = [](ImDrawList* drawList, const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners, float thickness)
-            //{
-            //    if ((col >> 24) == 0)
-            //        return;
-            //    drawList->PathRect(a, b, rounding, rounding_corners);
-            //    drawList->PathStroke(col, true, thickness);
-            //};
-
-            //drawList->AddRectFilled(inputsRect.GetTL() + ImVec2(0, 1), inputsRect.GetBR(),
-            //    IM_COL32((int)(255 * pinBackground.x), (int)(255 * pinBackground.y), (int)(255 * pinBackground.z), inputAlpha), 4.0f, 12);
-            //ImGui::PushStyleVar(ImGuiStyleVar_AntiAliasFringeScale, 1.0f);
-            //drawList->AddRect(inputsRect.GetTL() + ImVec2(0, 1), inputsRect.GetBR(),
-            //    IM_COL32((int)(255 * pinBackground.x), (int)(255 * pinBackground.y), (int)(255 * pinBackground.z), inputAlpha), 4.0f, 12);
-            //ImGui::PopStyleVar();
-            //drawList->AddRectFilled(outputsRect.GetTL(), outputsRect.GetBR() - ImVec2(0, 1),
-            //    IM_COL32((int)(255 * pinBackground.x), (int)(255 * pinBackground.y), (int)(255 * pinBackground.z), outputAlpha), 4.0f, 3);
-            ////ImGui::PushStyleVar(ImGuiStyleVar_AntiAliasFringeScale, 1.0f);
-            //drawList->AddRect(outputsRect.GetTL(), outputsRect.GetBR() - ImVec2(0, 1),
-            //    IM_COL32((int)(255 * pinBackground.x), (int)(255 * pinBackground.y), (int)(255 * pinBackground.z), outputAlpha), 4.0f, 3);
-            ////ImGui::PopStyleVar();
-            //drawList->AddRectFilled(contentRect.GetTL(), contentRect.GetBR(), IM_COL32(24, 64, 128, 200), 0.0f);
-            //ImGui::PushStyleVar(ImGuiStyleVar_AntiAliasFringeScale, 1.0f);
-            //drawList->AddRect(
-            //    contentRect.GetTL(),
-            //    contentRect.GetBR(),
-            //    IM_COL32(48, 128, 255, 100), 0.0f);
-            //ImGui::PopStyleVar();
         }
 
         for (auto& node : s_Nodes)

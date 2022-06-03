@@ -1,11 +1,14 @@
 {
-  "Items": [
-    "Axe",
-    "Sword",
-    "Hammer"
-  ],
-  "QuestCategory": [
-    "Main Quest",
-    "Side Quest"
-  ]
+   "Items": [
+      "Axe",
+      "Sword",
+      "Hammer"
+   ],
+   "QuestCategory": [
+      "Main Quest",
+      "Side Quest"
+   ],
+   "Recently": [
+      "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json"
+   ]
 }

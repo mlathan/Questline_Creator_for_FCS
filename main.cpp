@@ -821,7 +821,7 @@ void ShowItemCatalog(bool* show = nullptr)
     {
 
         static char bufferItem[100] = "Item";
-        ImGui::InputText("##itemToAdd", bufferItem, 100);
+        ImGui::InputTextMultiline("##itemToAdd", bufferItem, 100);
         ImGui::Separator();
 
         if (ImGui::Button("Add", ImVec2(120, 0))) 
@@ -1114,7 +1114,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questID = (char*)node->quest.quest_id.data();
 
                     ImGui::Text("Quest ID: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questID", questID, 11))
+                    if (ImGui::InputTextMultiline("##questID", questID, 50))
                     {
                         node->quest.quest_id = questID;
                         node->quest.name = questID;
@@ -1123,7 +1123,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questName = (char*)node->quest.quest_name.c_str();
 
                     ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questName", questName, 41))
+                    if (ImGui::InputTextMultiline("##questName", questName, 51))
                     {
                         node->quest.quest_name = questName;
                     }
@@ -1148,7 +1148,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questArea = (char*)node->quest.area_name.data();
 
                     ImGui::Text("Area Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questArea", questArea, 21))
+                    if (ImGui::InputTextMultiline("##questArea", questArea, 31))
                     {
                         node->quest.area_name = questArea;
                     }
@@ -1190,7 +1190,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                 char* objectiveId = (char*)node->quest.objectives.at(i).objective_id.data();
 
                                 ImGui::Text("Objective id: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputText("##objectiveId", objectiveId, 11))
+                                if (ImGui::InputTextMultiline("##objectiveId", objectiveId, 21))
                                 {
                                     node->quest.objectives.at(i).objective_id = objectiveId;
                                 }
@@ -1217,7 +1217,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                         if (ImGui::TreeNode((void*)(intptr_t)j, "Objective Tip %d", j + 1))
                                         {
                                             char* objectiveTip = (char*)node->quest.objectives.at(i).objective_tips.at(j).data();
-                                            if (ImGui::InputText("##objectiveTip", objectiveTip, 31))
+                                            if (ImGui::InputTextMultiline("##objectiveTip", objectiveTip, 51))
                                             {
                                                 node->quest.objectives.at(i).objective_tips.at(j) = objectiveTip;
                                             }
@@ -1245,6 +1245,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
 
                                 ImGui::TreePop();
                             }
+                            ImGui::Separator();
                         }
                         ImGui::TreePop();
                     }
@@ -1327,7 +1328,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* charName = (char*)node->Name.data();
 
                     ImGui::Text("Character Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##charName", charName, 21))
+                    if (ImGui::InputTextMultiline("##charName", charName, 21))
                     {
                         node->Name = charName;
                     }
@@ -1561,6 +1562,143 @@ void SaveWork()
             std::ofstream o(filename);
             o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
         }
+    }
+}
+
+void SaveWorkAs()
+{
+    nlohmann::ordered_json jsonObjects = nlohmann::json::array();
+
+    for (auto& node : s_Nodes)
+    {
+        if (node.Typ == "Quest")
+        {
+            SetRequiredQuests(node);
+            SetQuestComplete(node);
+        }
+        if (node.Typ == "Character")
+        {
+            SetCharacterLink(node);
+        }
+    }
+
+    for (auto& node : s_Nodes)
+    {
+        if (node.Typ == "Quest")
+        {
+            nlohmann::ordered_json j = nlohmann::json::object();
+
+            ImVec2 pos = ed::GetNodePosition(node.ID);
+
+            j["PositionX"] = pos.x;
+            j["PositionY"] = pos.y;
+            j["Typ"] = "Quest";
+
+            j["Name"] = node.quest.name;
+            j["QuestID"] = node.quest.quest_id;
+            j["QuestName"] = node.quest.quest_name;
+            j["Category"] = node.quest.category;
+            j["AreaName"] = node.quest.area_name;
+            j["RecommendedLevel"] = node.quest.recommended_level;
+            j["Description"] = node.quest.description;
+
+            nlohmann::ordered_json objectives = nlohmann::json::array();
+
+            for (auto& obj : node.quest.objectives)
+            {
+                nlohmann::ordered_json jObj = nlohmann::json::object();
+
+                jObj["Objective_ID"] = obj.objective_id;
+                jObj["ObjectiveDescription"] = obj.objective_description;
+
+                nlohmann::ordered_json objectiveTips = nlohmann::json::array();
+
+                for (auto& objTips : obj.objective_tips)
+                {
+                    objectiveTips.push_back(objTips);
+                }
+
+                jObj["ObjectiveTips"] = objectiveTips;
+
+                jObj["CurrentAmount"] = 0;
+                jObj["RequiredAmount"] = obj.required_amount;
+                jObj["HasWorldMarker?"] = obj.has_world_marker;
+                jObj["ObjectiveCompleteAnotherQuest"] = obj.objective_complete_another_quest;
+                jObj["QuestID"] = obj.quest_id;
+
+                objectives.push_back(jObj);
+            }
+
+            j["Objectives"] = objectives;
+
+            nlohmann::ordered_json rewards = nlohmann::json::object();
+
+            rewards["Experience"] = node.quest.rewards.experience;
+            rewards["Gold"] = node.quest.rewards.gold;
+
+            nlohmann::ordered_json items = nlohmann::json::object();
+
+            for (auto& item : node.quest.rewards.items)
+            {
+                items[item.item] = item.amount;
+            }
+
+            rewards["Items"] = items;
+
+            j["Rewards"] = rewards;
+
+            nlohmann::ordered_json requiredQuest = nlohmann::json::array();
+
+            for (auto& reqQuest : node.quest.required_quests)
+            {
+                requiredQuest.push_back(reqQuest);
+            }
+
+            j["RequiredQuests"] = requiredQuest;
+
+            nlohmann::ordered_json questToAdd = nlohmann::json::array();
+
+            for (auto& reqQuest : node.quest.quests_to_add_after_completion)
+            {
+                questToAdd.push_back(reqQuest);
+            }
+
+            j["QuestsToAddAfterCompletion"] = questToAdd;
+
+            j["CanQuestBeAborted?"] = node.quest.can_quest_be_aborted;
+
+            jsonObjects.push_back(j);
+        }
+
+        if (node.Typ == "Character")
+        {
+            nlohmann::ordered_json j = nlohmann::json::object();
+
+            ImVec2 pos = ed::GetNodePosition(node.ID);
+
+            j["PositionX"] = pos.x;
+            j["PositionY"] = pos.y;
+            j["Typ"] = "Character";
+
+            j["Name"] = node.Name;
+            j["QuestId"] = node.QuestId;
+
+            jsonObjects.push_back(j);
+        }
+    }
+
+    static char BASED_CODE szFilter[] = "Json Node Files (*.json)|*.json|";
+
+    CFileDialog dlg(FALSE, CString(".json"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter);
+
+    auto result = dlg.DoModal();
+    if (result != IDOK) 
+        return;
+    else
+    {
+        std::string filename = dlg.GetPathName().GetString();
+        std::ofstream o(filename);
+        o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
     }
 }
 
@@ -1876,7 +2014,7 @@ void ShowMenuFile()
     }
     if (ImGui::MenuItem("Save as"))
     {
-
+        SaveWorkAs();
     }
 
     ImGui::Separator();
@@ -1890,7 +2028,6 @@ void ShowMenuFile()
 
     if (ImGui::MenuItem("Quit", "Alt+F4")) 
     {
-    
     }
 }
 

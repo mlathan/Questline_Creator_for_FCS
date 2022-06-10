@@ -59,9 +59,12 @@
     <ClInclude Include="utilities\widgets.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Blueprints.json" />
+    <None Include="Config.json" />
     <None Include="external\ImGuiNodes\imgui_bezier_math.inl" />
     <None Include="external\ImGuiNodes\imgui_extra_math.inl" />
     <None Include="external\ImGuiNodes\imgui_node_editor_internal.inl" />
+    <None Include="NodeEditor.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\BlueprintBackground.png" />

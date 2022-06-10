@@ -317,7 +317,7 @@ static Node* SpawnQuestCharacterNode()
 
 static Node* SpawnQuestNode()
 {
-    s_Nodes.emplace_back(GetNextId(), "Quest", ImColor(38, 204, 20)); //Quest
+    s_Nodes.emplace_back(GetNextId(), "Quest", ImColor(20, 20, 20)); //Quest
     s_Nodes.back().Outputs.emplace_back(GetNextId(), "Quest", PinType::Flow);
     s_Nodes.back().Inputs.emplace_back(GetNextId(), "Quest", PinType::Flow);
     s_Nodes.back().Inputs.emplace_back(GetNextId(), "Required Quest", PinType::Bool);
@@ -563,8 +563,60 @@ char *convert(const std::string & s)
     return pc; 
 }
 
+void SetupStyle()
+{
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 5.3f;
+    style.FrameRounding = 2.3f;
+    style.ScrollbarRounding = 0;
+
+    style.Colors[ImGuiCol_Tab]                   = ImVec4(0.2f, 0.2f, 0.2f, 2.0f);
+    style.Colors[ImGuiCol_TabActive]             = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.3f, 0.3f, 0.3f, 0.80f);
+
+
+
+    style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
+    style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
+    style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.05f, 0.05f, 0.10f, 0.85f);
+    style.Colors[ImGuiCol_Border]                = ImVec4(0.70f, 0.70f, 0.70f, 0.65f);
+    style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    style.Colors[ImGuiCol_FrameBg]               = ImVec4(0.00f, 0.00f, 0.01f, 1.00f);
+    style.Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.90f, 0.80f, 0.80f, 0.40f);
+    style.Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.90f, 0.65f, 0.65f, 0.45f);
+    style.Colors[ImGuiCol_TitleBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.83f);
+    style.Colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.40f, 0.40f, 0.80f, 0.20f);
+    style.Colors[ImGuiCol_TitleBgActive]         = ImVec4(0.00f, 0.00f, 0.00f, 0.87f);
+    style.Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.01f, 0.01f, 0.02f, 0.80f);
+    style.Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
+    style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.55f, 0.53f, 0.55f, 0.51f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.56f, 0.56f, 0.56f, 0.91f);
+    style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.90f, 0.90f, 0.90f, 0.83f);
+    style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.70f, 0.70f, 0.70f, 0.62f);
+    style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.30f, 0.30f, 0.30f, 0.84f);
+    style.Colors[ImGuiCol_Button]                = ImVec4(0.3f, 0.3f, 0.3f, 0.80f);
+    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.40f, 0.4f, 0.4f, 1.0f);
+    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
+    style.Colors[ImGuiCol_Header]                = ImVec4(0.30f, 0.69f, 1.00f, 0.53f);
+    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.44f, 0.61f, 0.86f, 1.00f);
+    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.38f, 0.62f, 0.83f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(1.00f, 1.00f, 1.00f, 0.85f);
+    style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
+    style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
+    style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
+    style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+}
+
 void Application_Initialize()
 {
+    SetupStyle();
+
     s_HeaderBackground = Application_LoadTexture("data/BlueprintBackground.png");
     s_SaveIcon = Application_LoadTexture("data/ic_save_white_24dp.png");
     s_RestoreIcon = Application_LoadTexture("data/ic_restore_white_24dp.png");
@@ -889,6 +941,34 @@ void ShowCategoryCatalog(bool* show = nullptr)
     ImGui::End();
 }
 
+void ShowAboutWindow(bool* show = nullptr)
+{
+    ImGui::SetNextWindowSize(ImVec2(450, 350));
+    if (!ImGui::Begin("AboutMe", show))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Questline Creator - Developer");
+    ImGui::Separator();
+
+    ImGui::Text("Name: ");
+    ImGui::SameLine();
+    ImGui::Text("Robert Sittig");
+
+    //
+    ImGui::Text("Github: ");
+    ImGui::SameLine();
+    ImGui::InputText("##github", "https://github.com/Sittlon", 30, ImGuiInputTextFlags_ReadOnly);
+
+    ImGui::Text("E-mail: ");
+    ImGui::SameLine();
+    ImGui::InputText("##email", "robertsittig1996@web.de", 30, ImGuiInputTextFlags_ReadOnly);
+
+    ImGui::End();
+}
+
 void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
 {
     auto& io = ImGui::GetIO();
@@ -947,7 +1027,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
             ImGui::GetWindowDrawList()->AddRectFilled(
                 ImGui::GetCursorScreenPos(),
                 ImGui::GetCursorScreenPos() + ImVec2(mainWidth, ImGui::GetTextLineHeight()),
-                ImColor(ImGui::GetStyle().Colors[ImGuiCol_HeaderActive]), ImGui::GetTextLineHeight() * 0.25f);
+                ImColor(60,60,60), ImGui::GetTextLineHeight() * 0.25f);
             ImGui::Spacing(); ImGui::SameLine();
             ImGui::TextUnformatted("Nodes");
             ImGui::Indent();
@@ -1011,7 +1091,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
             ImGui::GetWindowDrawList()->AddRectFilled(
                 ImGui::GetCursorScreenPos(),
                 ImGui::GetCursorScreenPos() + ImVec2(mainWidth, ImGui::GetTextLineHeight()),
-                ImColor(ImGui::GetStyle().Colors[ImGuiCol_HeaderActive]), ImGui::GetTextLineHeight() * 0.25f);
+                ImColor(60,60,60), ImGui::GetTextLineHeight() * 0.25f);
             ImGui::Spacing(); ImGui::SameLine();
             ImGui::TextUnformatted("Selection");
 
@@ -2031,29 +2111,6 @@ void ShowMenuFile()
     }
 }
 
-void ShowAppMainMenuBar()
-{
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            ShowMenuFile();
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Edit"))
-        {
-            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-            ImGui::Separator();
-            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-}
-
 void Application_Frame()
 {
     UpdateTouch();
@@ -2061,6 +2118,7 @@ void Application_Frame()
     static bool showStyleEditor = false;
     static bool showItemCatalog = false;
     static bool showCategoryCatalog = false;
+    static bool showAboutWindow = false;
 
     auto& io = ImGui::GetIO();
 
@@ -2080,7 +2138,7 @@ void Application_Frame()
         }
         if (ImGui::BeginMenu("About"))
         {
-            ImGui::MenuItem("Metrics", NULL);
+            ImGui::MenuItem("Questline Creator - Developer", NULL, &showAboutWindow);
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -2094,6 +2152,9 @@ void Application_Frame()
 
     if (showCategoryCatalog)
         ShowCategoryCatalog(&showCategoryCatalog);
+
+    if (showAboutWindow)
+        ShowAboutWindow(&showAboutWindow);
 
     ed::SetCurrentEditor(m_Editor);
 
@@ -2153,7 +2214,7 @@ void Application_Frame()
                     ImGui::Spring(0);
                     ImGui::TextUnformatted(node.Name.c_str()); ImGui::SameLine(); ImGui::TextUnformatted((char*)std::string(q1 + qId + q2).c_str());
                     ImGui::Spring(1);
-                    ImGui::TextColored(ImVec4(0.0f,0.0f,0.0f,1.0f), node.quest.quest_name.c_str());
+                    ImGui::TextColored(ImVec4(1.0f,1.0f,1.0f,1.0f), node.quest.quest_name.c_str());
                     ImGui::Dummy(ImVec2(422, 0));
                 }
                 else

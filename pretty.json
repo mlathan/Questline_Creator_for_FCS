@@ -1,0 +1,77 @@
+[
+  {
+    "Name": "q1",
+    "QuestID": "q1",
+    "QuestName": "Suche den Fürsten",
+    "Category": "Main Quest",
+    "AreaName": "Dessau",
+    "RecommendedLevel": 1,
+    "Description": "Geh nach irgendwo",
+    "Objectives": [
+      {
+        "Objective_ID": "obj1",
+        "ObjectiveDescription": "Suche den Fürsten Moritzius",
+        "ObjectiveTips": [
+          "Er chillt gerne auf dem Sofa"
+        ],
+        "CurrentAmount": 0,
+        "RequiredAmount": 1,
+        "HasWorldMarker?": true,
+        "ObjectiveCompleteAnotherQuest": false,
+        "QuestID": "None"
+      },
+      {
+        "Objective_ID": "obj2",
+        "ObjectiveDescription": "Sprich mit ihm",
+        "ObjectiveTips": [],
+        "CurrentAmount": 0,
+        "RequiredAmount": 1,
+        "HasWorldMarker?": false,
+        "ObjectiveCompleteAnotherQuest": false,
+        "QuestID": "None"
+      }
+    ],
+    "Rewards": {
+      "Experience": 10,
+      "Gold": 10,
+      "Items": {
+        "Sword": 1,
+        "Hammer": 1
+      }
+    },
+    "RequiredQuests": [],
+    "QuestsToAddAfterCompletion": [],
+    "CanQuestBeAborted?": true
+  },
+  {
+    "Name": "q2",
+    "QuestID": "q2",
+    "QuestName": "Suche die Fürstin",
+    "Category": "Main Quest",
+    "AreaName": "Dessau",
+    "RecommendedLevel": 1,
+    "Description": "Suche die Fürstin Liliana",
+    "Objectives": [
+      {
+        "Objective_ID": "ob1",
+        "ObjectiveDescription": "Sprich mit der",
+        "ObjectiveTips": [],
+        "CurrentAmount": 0,
+        "RequiredAmount": 1,
+        "HasWorldMarker?": true,
+        "ObjectiveCompleteAnotherQuest": false,
+        "QuestID": "None"
+      }
+    ],
+    "Rewards": {
+      "Experience": 20,
+      "Gold": 10,
+      "Items": {
+        "Axe": 2
+      }
+    },
+    "RequiredQuests": [],
+    "QuestsToAddAfterCompletion": [],
+    "CanQuestBeAborted?": true
+  }
+]

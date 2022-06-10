@@ -136,6 +136,9 @@
     <None Include="external\ImGuiNodes\imgui_extra_math.inl">
       <Filter>Headerdateien</Filter>
     </None>
+    <None Include="Config.json" />
+    <None Include="Blueprints.json" />
+    <None Include="NodeEditor.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\BlueprintBackground.png">

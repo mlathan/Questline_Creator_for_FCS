@@ -202,8 +202,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     if (CreateDeviceD3D(hwnd) < 0)
         return 1;
 
+ 
     ImFontAtlas fontAtlas;
+    //auto defaultFont = ImGui_LoadFont(fontAtlas, "segoeui.ttf", 22.0f);//16.0f * 96.0f / 72.0f);
+
     auto defaultFont = ImGui_LoadFont(fontAtlas, "segoeui.ttf", 22.0f);//16.0f * 96.0f / 72.0f);
+
     fontAtlas.Build();
     //ImGuiFreeType::BuildFontAtlas(&fontAtlas);
 

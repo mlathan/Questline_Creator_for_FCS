@@ -303,9 +303,8 @@ static void BuildNode(Node* node)
 
 static Node* SpawnQuestCharacterNode() 
 {
-    s_Nodes.emplace_back(GetNextId(), "Quest Character", ImColor(255, 128, 128));
+    s_Nodes.emplace_back(GetNextId(), "Quest Character", ImColor(60, 60, 60));
     s_Nodes.back().Outputs.emplace_back(GetNextId(), "Quest", PinType::Flow);
-    s_Nodes.back().Inputs.emplace_back(GetNextId(), "Name", PinType::String);
 
     s_Nodes.back().Name = "Character";
     s_Nodes.back().Typ = "Character";
@@ -572,8 +571,8 @@ void SetupStyle()
 
     style.Colors[ImGuiCol_Tab]                   = ImVec4(0.2f, 0.2f, 0.2f, 2.0f);
     style.Colors[ImGuiCol_TabActive]             = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
-    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.3f, 0.3f, 0.3f, 0.80f);
-
+    style.Colors[ImGuiCol_TabHovered]            = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 
 
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
@@ -597,11 +596,11 @@ void SetupStyle()
     style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.70f, 0.70f, 0.70f, 0.62f);
     style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.30f, 0.30f, 0.30f, 0.84f);
     style.Colors[ImGuiCol_Button]                = ImVec4(0.3f, 0.3f, 0.3f, 0.80f);
-    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.40f, 0.4f, 0.4f, 1.0f);
-    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
-    style.Colors[ImGuiCol_Header]                = ImVec4(0.30f, 0.69f, 1.00f, 0.53f);
-    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.44f, 0.61f, 0.86f, 1.00f);
-    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.38f, 0.62f, 0.83f, 1.00f);
+    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    style.Colors[ImGuiCol_Header]                = ImVec4(0.30f, 0.3f, 0.3f, 1.0f);
+    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
+    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
     style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(1.00f, 1.00f, 1.00f, 0.85f);
     style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
     style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
@@ -609,7 +608,6 @@ void SetupStyle()
     style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
     style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
     style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
     style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
@@ -991,7 +989,6 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
         {
             paneWidth = 350.0f;
 
-            static bool showStyleEditor = false;
             ImGui::BeginHorizontal("Style Editor", ImVec2(paneWidth + 25.0f, 0));
             ImGui::Spring(0.0f, 0.0f);
             if (ImGui::Button("Zoom to Content"))
@@ -1002,13 +999,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                 for (auto& link : s_Links)
                     ed::Flow(link.ID);
             }
-            ImGui::Spring();
-            if (ImGui::Button("Edit Style"))
-                showStyleEditor = true;
             ImGui::EndHorizontal();
-
-            if (showStyleEditor)
-                ShowStyleEditor(&showStyleEditor);
 
             selectedNodes.resize(ed::GetSelectedObjectCount());
             selectedLinks.resize(ed::GetSelectedObjectCount());
@@ -1194,7 +1185,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questID = (char*)node->quest.quest_id.data();
 
                     ImGui::Text("Quest ID: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputTextMultiline("##questID", questID, 50))
+                    if (ImGui::InputText("##questID", questID, 51))
                     {
                         node->quest.quest_id = questID;
                         node->quest.name = questID;
@@ -1203,7 +1194,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questName = (char*)node->quest.quest_name.c_str();
 
                     ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputTextMultiline("##questName", questName, 51))
+                    if (ImGui::InputText("##questName", questName, 51))
                     {
                         node->quest.quest_name = questName;
                     }
@@ -1228,7 +1219,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questArea = (char*)node->quest.area_name.data();
 
                     ImGui::Text("Area Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputTextMultiline("##questArea", questArea, 31))
+                    if (ImGui::InputText("##questArea", questArea, 51))
                     {
                         node->quest.area_name = questArea;
                     }
@@ -1265,12 +1256,18 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     {
                         for (int i = 0; i < node->quest.objectives.size(); i++)
                         {
+                            if (ImGui::Button("X"))
+                            {
+                                node->quest.objectives.erase(node->quest.objectives.begin() + i
+                                    , node->quest.objectives.begin() + i + 1);
+                            }
+                            ImGui::SameLine();
                             if (ImGui::TreeNode((void*)(intptr_t)i, "Objective %d", i + 1))
                             {
                                 char* objectiveId = (char*)node->quest.objectives.at(i).objective_id.data();
 
                                 ImGui::Text("Objective id: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputTextMultiline("##objectiveId", objectiveId, 21))
+                                if (ImGui::InputText("##objectiveId", objectiveId, 51))
                                 {
                                     node->quest.objectives.at(i).objective_id = objectiveId;
                                 }
@@ -1278,34 +1275,10 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                 char* objectiveDescription = (char*)node->quest.objectives.at(i).objective_description.data();
 
                                 ImGui::Text("Objective Description: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputTextMultiline("##objectiveDescription", objectiveDescription, 301, 
+                                if (ImGui::InputTextMultiline("##objectiveDescription", objectiveDescription, 5000, 
                                     ImVec2(-FLT_MIN, io.DisplaySize.y - 900.0f)))
                                 {
                                     node->quest.objectives.at(i).objective_description = objectiveDescription;
-                                }
-
-                                if (ImGui::Button("Add Objective Tip"))
-                                {
-                                    std::string* str = new std::string("Objective");
-                                    node->quest.objectives.at(i).objective_tips.push_back(*str);
-                                    delete(str);
-                                }
-                                if (ImGui::TreeNode("Objective Tips"))
-                                {
-                                    for (int j = 0; j < node->quest.objectives.at(i).objective_tips.size(); j++)
-                                    {
-                                        if (ImGui::TreeNode((void*)(intptr_t)j, "Objective Tip %d", j + 1))
-                                        {
-                                            char* objectiveTip = (char*)node->quest.objectives.at(i).objective_tips.at(j).data();
-                                            if (ImGui::InputTextMultiline("##objectiveTip", objectiveTip, 51))
-                                            {
-                                                node->quest.objectives.at(i).objective_tips.at(j) = objectiveTip;
-                                            }
-
-                                            ImGui::TreePop();
-                                        }
-                                    }
-                                    ImGui::TreePop();
                                 }
 
                                 int requiredAmount = node->quest.objectives.at(i).required_amount;
@@ -1323,6 +1296,36 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                     node->quest.objectives.at(i).has_world_marker = hasWorldMarker;
                                 }
 
+                                if (ImGui::Button("Add Objective Tip"))
+                                {
+                                    std::string* str = new std::string("Objective");
+                                    node->quest.objectives.at(i).objective_tips.push_back(*str);
+                                    delete(str);
+                                }
+                                if (ImGui::TreeNode("Objective Tips"))
+                                {
+                                    for (int j = 0; j < node->quest.objectives.at(i).objective_tips.size(); j++)
+                                    {
+                                        //todo Button korrigieren, nur der erste geht wegen identifer
+                                        if (ImGui::Button("X")) 
+                                        {
+                                            node->quest.objectives.at(i).objective_tips.erase(node->quest.objectives.at(i).objective_tips.begin() + i
+                                                , node->quest.objectives.at(i).objective_tips.begin() + i + 1);
+                                        }
+                                        ImGui::SameLine();
+                                        if (ImGui::TreeNode((void*)(intptr_t)j, "Objective Tip %d", j + 1))
+                                        {
+                                            char* objectiveTip = (char*)node->quest.objectives.at(i).objective_tips.at(j).data();
+                                            if (ImGui::InputTextMultiline("##objectiveTip", objectiveTip, 101))
+                                            {
+                                                node->quest.objectives.at(i).objective_tips.at(j) = objectiveTip;
+                                            }
+
+                                            ImGui::TreePop();
+                                        }
+                                    }
+                                    ImGui::TreePop();
+                                }
                                 ImGui::TreePop();
                             }
                             ImGui::Separator();
@@ -2597,65 +2600,65 @@ void Application_Frame()
         //    auto drawList = ed::GetNodeBackgroundDrawList(node.ID);
         //}
 
-        //for (auto& node : s_Nodes)
-        //{
-        //    if (node.Type != NodeType::Comment)
-        //        continue;
+        for (auto& node : s_Nodes)
+        {
+            if (node.Type != NodeType::Comment)
+                continue;
 
-        //    const float commentAlpha = 0.75f;
+            const float commentAlpha = 0.75f;
 
-        //    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, commentAlpha);
-        //    ed::PushStyleColor(ed::StyleColor_NodeBg, ImColor(255, 255, 255, 64));
-        //    ed::PushStyleColor(ed::StyleColor_NodeBorder, ImColor(255, 255, 255, 64));
-        //    ed::BeginNode(node.ID);
-        //    ImGui::PushID(node.ID.AsPointer());
-        //    ImGui::BeginVertical("content");
-        //    ImGui::BeginHorizontal("horizontal");
-        //    ImGui::Spring(1);
-        //    ImGui::TextUnformatted(node.Name.c_str());
-        //    ImGui::Spring(1);
-        //    ImGui::EndHorizontal();
-        //    ed::Group(node.Size);
-        //    ImGui::EndVertical();
-        //    ImGui::PopID();
-        //    ed::EndNode();
-        //    ed::PopStyleColor(2);
-        //    ImGui::PopStyleVar();
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, commentAlpha);
+            ed::PushStyleColor(ed::StyleColor_NodeBg, ImColor(255, 255, 255, 64));
+            ed::PushStyleColor(ed::StyleColor_NodeBorder, ImColor(255, 255, 255, 64));
+            ed::BeginNode(node.ID);
+            ImGui::PushID(node.ID.AsPointer());
+            ImGui::BeginVertical("content");
+            ImGui::BeginHorizontal("horizontal");
+            ImGui::Spring(1);
+            ImGui::TextUnformatted(node.Name.c_str());
+            ImGui::Spring(1);
+            ImGui::EndHorizontal();
+            ed::Group(node.Size);
+            ImGui::EndVertical();
+            ImGui::PopID();
+            ed::EndNode();
+            ed::PopStyleColor(2);
+            ImGui::PopStyleVar();
 
-        //    if (ed::BeginGroupHint(node.ID))
-        //    {
-        //        //auto alpha   = static_cast<int>(commentAlpha * ImGui::GetStyle().Alpha * 255);
-        //        auto bgAlpha = static_cast<int>(ImGui::GetStyle().Alpha * 255);
+            if (ed::BeginGroupHint(node.ID))
+            {
+                //auto alpha   = static_cast<int>(commentAlpha * ImGui::GetStyle().Alpha * 255);
+                auto bgAlpha = static_cast<int>(ImGui::GetStyle().Alpha * 255);
 
-        //        //ImGui::PushStyleVar(ImGuiStyleVar_Alpha, commentAlpha * ImGui::GetStyle().Alpha);
+                //ImGui::PushStyleVar(ImGuiStyleVar_Alpha, commentAlpha * ImGui::GetStyle().Alpha);
 
-        //        auto min = ed::GetGroupMin();
-        //        //auto max = ed::GetGroupMax();
+                auto min = ed::GetGroupMin();
+                //auto max = ed::GetGroupMax();
 
-        //        ImGui::SetCursorScreenPos(min - ImVec2(-8, ImGui::GetTextLineHeightWithSpacing() + 4));
-        //        ImGui::BeginGroup();
-        //        ImGui::TextUnformatted(node.Name.c_str());
-        //        ImGui::EndGroup();
+                ImGui::SetCursorScreenPos(min - ImVec2(-8, ImGui::GetTextLineHeightWithSpacing() + 4));
+                ImGui::BeginGroup();
+                ImGui::TextUnformatted(node.Name.c_str());
+                ImGui::EndGroup();
 
-        //        auto drawList = ed::GetHintBackgroundDrawList();
+                auto drawList = ed::GetHintBackgroundDrawList();
 
-        //        auto hintBounds = ImGui_GetItemRect();
-        //        auto hintFrameBounds = ImRect_Expanded(hintBounds, 8, 4);
+                auto hintBounds = ImGui_GetItemRect();
+                auto hintFrameBounds = ImRect_Expanded(hintBounds, 8, 4);
 
-        //        drawList->AddRectFilled(
-        //            hintFrameBounds.GetTL(),
-        //            hintFrameBounds.GetBR(),
-        //            IM_COL32(255, 255, 255, 64 * bgAlpha / 255), 4.0f);
+                drawList->AddRectFilled(
+                    hintFrameBounds.GetTL(),
+                    hintFrameBounds.GetBR(),
+                    IM_COL32(255, 255, 255, 64 * bgAlpha / 255), 4.0f);
 
-        //        drawList->AddRect(
-        //            hintFrameBounds.GetTL(),
-        //            hintFrameBounds.GetBR(),
-        //            IM_COL32(255, 255, 255, 128 * bgAlpha / 255), 4.0f);
+                drawList->AddRect(
+                    hintFrameBounds.GetTL(),
+                    hintFrameBounds.GetBR(),
+                    IM_COL32(255, 255, 255, 128 * bgAlpha / 255), 4.0f);
 
-        //        //ImGui::PopStyleVar();
-        //    }
-        //    ed::EndGroupHint();
-        //}
+                //ImGui::PopStyleVar();
+            }
+            ed::EndGroupHint();
+        }
 #pragma endregion
 
         for (auto& link : s_Links)
@@ -2878,8 +2881,6 @@ void Application_Frame()
         if (ImGui::MenuItem("Quest"))
             node = SpawnQuestNode();
         ImGui::Separator();
-        if (ImGui::MenuItem("String"))
-            node = SpawnMessageNode();
         if (ImGui::MenuItem("Comment"))
             node = SpawnComment();
 

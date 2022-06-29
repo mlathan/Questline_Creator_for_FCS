@@ -150,5 +150,8 @@
     <Image Include="data\ic_save_white_24dp.png">
       <Filter>Ressourcendateien</Filter>
     </Image>
+    <Image Include="data\EasyQuests.ico">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
   </ItemGroup>
 </Project>

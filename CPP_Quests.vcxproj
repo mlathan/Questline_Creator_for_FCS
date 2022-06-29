@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\BlueprintBackground.png" />
+    <Image Include="data\EasyQuests.ico" />
     <Image Include="data\ic_restore_white_24dp.png" />
     <Image Include="data\ic_save_white_24dp.png" />
   </ItemGroup>

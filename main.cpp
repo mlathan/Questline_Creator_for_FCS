@@ -1256,7 +1256,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     {
                         for (int i = 0; i < node->quest.objectives.size(); i++)
                         {
-                            if (ImGui::Button("X"))
+                            std::string name = std::string("X##" + std::to_string(i));
+                            if (ImGui::Button(name.data()))
                             {
                                 node->quest.objectives.erase(node->quest.objectives.begin() + i
                                     , node->quest.objectives.begin() + i + 1);
@@ -1307,7 +1308,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                     for (int j = 0; j < node->quest.objectives.at(i).objective_tips.size(); j++)
                                     {
                                         //todo Button korrigieren, nur der erste geht wegen identifer
-                                        if (ImGui::Button("X")) 
+                                        std::string name = std::string("X##" + std::to_string(j));
+                                        if (ImGui::Button(name.data())) 
                                         {
                                             node->quest.objectives.at(i).objective_tips.erase(node->quest.objectives.at(i).objective_tips.begin() + i
                                                 , node->quest.objectives.at(i).objective_tips.begin() + i + 1);

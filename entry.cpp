@@ -198,7 +198,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     auto hwnd = CreateWindow(c_ClassName, c_WindowName.c_str(), WS_OVERLAPPEDWINDOW, 1920 + 100, 100, 1440, 800, nullptr, nullptr, wc.hInstance, nullptr);
 
-    HANDLE hIcon = LoadImage(0, _T("data/EasyQuests.ico"), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+    HANDLE hIcon = LoadImage(0, _T("data/Questline_Creator_for_FCS.ico"), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 
     SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
     SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);

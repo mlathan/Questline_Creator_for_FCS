@@ -5,8 +5,11 @@
       "Hammer"
    ],
    "QuestCategory": [
-      "Main Quest",
-      "Side Quest"
+      "Talk",
+    "Interact",
+    "Collect",
+    "Kill",
+    "Location"
    ],
    "Recently": [
       "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json",

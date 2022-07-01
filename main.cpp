@@ -115,7 +115,6 @@ struct Node
 
     Quest quest;
     Rewards rewards;
-    Items items;
     std::string Typ;
     std::string QuestId;
 
@@ -1216,21 +1215,6 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                         ImGui::EndCombo();
                     }
 
-                    char* questArea = (char*)node->quest.area_name.data();
-
-                    ImGui::Text("Area Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questArea", questArea, 51))
-                    {
-                        node->quest.area_name = questArea;
-                    }
-
-                    int i0 = node->quest.recommended_level;
-                    ImGui::Text("Recommended Level: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputInt("##questRecLevel", &i0))
-                    {
-                        node->quest.recommended_level = i0;
-                    }
-
                     char* questDescription = (char*)node->quest.description.data();
 
                     ImGui::Text("Description: "); ImGui::Spacing(); ImGui::SameLine();
@@ -1243,133 +1227,22 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     ImGui::EndTabItem();
                 }
 
-                if (ImGui::BeginTabItem("Quest Objective"))
-                {
-                    if (ImGui::Button("Add Objective"))
-                    {
-                        Objective* obj = new Objective();
-                        node->quest.objectives.push_back(*obj);
-                        delete(obj);
-                    }
-
-                    if (ImGui::TreeNode("Objective Overview"))
-                    {
-                        for (int i = 0; i < node->quest.objectives.size(); i++)
-                        {
-                            std::string name = std::string("X##" + std::to_string(i));
-                            if (ImGui::Button(name.data()))
-                            {
-                                node->quest.objectives.erase(node->quest.objectives.begin() + i
-                                    , node->quest.objectives.begin() + i + 1);
-                            }
-                            ImGui::SameLine();
-                            if (ImGui::TreeNode((void*)(intptr_t)i, "Objective %d", i + 1))
-                            {
-                                char* objectiveId = (char*)node->quest.objectives.at(i).objective_id.data();
-
-                                ImGui::Text("Objective id: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputText("##objectiveId", objectiveId, 51))
-                                {
-                                    node->quest.objectives.at(i).objective_id = objectiveId;
-                                }
-
-                                char* objectiveDescription = (char*)node->quest.objectives.at(i).objective_description.data();
-
-                                ImGui::Text("Objective Description: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputTextMultiline("##objectiveDescription", objectiveDescription, 5000, 
-                                    ImVec2(-FLT_MIN, io.DisplaySize.y - 900.0f)))
-                                {
-                                    node->quest.objectives.at(i).objective_description = objectiveDescription;
-                                }
-
-                                int requiredAmount = node->quest.objectives.at(i).required_amount;
-
-                                ImGui::Text("Required Amount: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputInt("##reqAmount", &requiredAmount))
-                                {
-                                    node->quest.objectives.at(i).required_amount = requiredAmount;
-                                }
-
-                                bool hasWorldMarker = node->quest.objectives.at(i).has_world_marker;
-
-                                if (ImGui::Checkbox("Has World Marker: ", &hasWorldMarker))
-                                {
-                                    node->quest.objectives.at(i).has_world_marker = hasWorldMarker;
-                                }
-
-                                if (ImGui::Button("Add Objective Tip"))
-                                {
-                                    std::string* str = new std::string("Objective");
-                                    node->quest.objectives.at(i).objective_tips.push_back(*str);
-                                    delete(str);
-                                }
-                                if (ImGui::TreeNode("Objective Tips"))
-                                {
-                                    for (int j = 0; j < node->quest.objectives.at(i).objective_tips.size(); j++)
-                                    {
-                                        //todo Button korrigieren, nur der erste geht wegen identifer
-                                        std::string name = std::string("X##" + std::to_string(j));
-                                        if (ImGui::Button(name.data())) 
-                                        {
-                                            node->quest.objectives.at(i).objective_tips.erase(node->quest.objectives.at(i).objective_tips.begin() + i
-                                                , node->quest.objectives.at(i).objective_tips.begin() + i + 1);
-                                        }
-                                        ImGui::SameLine();
-                                        if (ImGui::TreeNode((void*)(intptr_t)j, "Objective Tip %d", j + 1))
-                                        {
-                                            char* objectiveTip = (char*)node->quest.objectives.at(i).objective_tips.at(j).data();
-                                            if (ImGui::InputTextMultiline("##objectiveTip", objectiveTip, 101))
-                                            {
-                                                node->quest.objectives.at(i).objective_tips.at(j) = objectiveTip;
-                                            }
-
-                                            ImGui::TreePop();
-                                        }
-                                    }
-                                    ImGui::TreePop();
-                                }
-                                ImGui::TreePop();
-                            }
-                            ImGui::Separator();
-                        }
-                        ImGui::TreePop();
-                    }
-
-                    ImGui::EndTabItem();
-                }
-
                 if (ImGui::BeginTabItem("Quest Rewards"))
                 {
-                    int rewardExp = node->quest.rewards.experience;
-
-                    ImGui::Text("Experience: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputInt("##rewardsExp", &rewardExp))
+                    if (ImGui::Button("Add Reward"))
                     {
-                        node->quest.rewards.experience = rewardExp;
-                    }
-
-                    int rewardGold = node->quest.rewards.gold;
-
-                    ImGui::Text("Gold: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputInt("##rewardsGold", &rewardGold))
-                    {
-                        node->quest.rewards.gold = rewardGold;
-                    }
-
-                    if (ImGui::Button("Add Item"))
-                    {
-                        Items* obj = new Items();
-                        node->quest.rewards.items.push_back(*obj);
+                        Rewards* obj = new Rewards();
+                        node->quest.rewards.push_back(*obj);
                         delete(obj);
                     }
 
-                    if (ImGui::TreeNode("Items"))
+                    if (ImGui::TreeNode("Reward"))
                     {
-                        for (int k = 0; k < node->quest.rewards.items.size(); k++)
+                        for (int k = 0; k < node->quest.rewards.size(); k++)
                         {
-                            if (ImGui::TreeNode((void*)(intptr_t)k, "Item %d", k + 1))
+                            if (ImGui::TreeNode((void*)(intptr_t)k, "Reward %d", k + 1))
                             {
-                                const char* item_current = node->quest.rewards.items.at(k).item.data();
+                                const char* item_current = node->quest.rewards.at(k).rowName.data();
                                 ImGui::Text("Item"); ImGui::Spacing(); ImGui::SameLine();
                                 if (ImGui::BeginCombo("##item", item_current))
                                 {
@@ -1378,7 +1251,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                         bool is_selected = (item_current == ItemVector.at(n));
                                         if (ImGui::Selectable(ItemVector.at(n).c_str(), is_selected)) {
                                             item_current = ItemVector.at(n).c_str();
-                                            node->quest.rewards.items.at(k).item = ItemVector.at(n);
+                                            node->quest.rewards.at(k).dataTable = ItemVector.at(n);
                                         }
                                         if (is_selected)
                                             ImGui::SetItemDefaultFocus();
@@ -1386,12 +1259,12 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                     ImGui::EndCombo();
                                 }
 
-                                int amount = node->quest.rewards.items.at(k).amount;
+                                int amount = node->quest.rewards.at(k).quantity;
 
                                 ImGui::Text("Amount: "); ImGui::Spacing(); ImGui::SameLine();
                                 if (ImGui::InputInt("##amount", &amount))
                                 {
-                                    node->quest.rewards.items.at(k).amount = amount;
+                                    node->quest.rewards.at(k).quantity = amount;
                                 }
 
                                 ImGui::TreePop();
@@ -1401,6 +1274,14 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
 
                         ImGui::TreePop();
                     }
+
+                    ImGui::EndTabItem();
+                }
+
+                if (ImGui::BeginTabItem("Quest Conditions"))
+                {
+
+
 
                     ImGui::EndTabItem();
                 }
@@ -1430,34 +1311,6 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
     ImGui::EndChild();
 }
 
-void SetRequiredQuests(Node& node)
-{
-    for (auto& input : node.Inputs)
-    {
-        if (IsPinLinked(input.ID))
-        {
-            for (auto& link : s_Links)
-            {
-                if (link.StartPinID == input.ID || link.EndPinID == input.ID)
-                {
-                    if (input.Name == "Required Quest")
-                    {
-                        auto startNode = FindNodeFromPin(link.StartPinID);
-
-                        if (!std::count(startNode->quest.quests_to_add_after_completion.begin(),
-                            startNode->quest.quests_to_add_after_completion.end(), node.quest.quest_id))
-                        {
-                            startNode->quest.quests_to_add_after_completion.push_back(node.quest.quest_id);
-
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-}
-
 void SetQuestComplete(Node& node)
 {
     for (auto& output : node.Outputs)
@@ -1472,12 +1325,7 @@ void SetQuestComplete(Node& node)
                     {
                         auto endNode = FindNodeFromPin(link.EndPinID);
 
-                        if (!std::count(endNode->quest.required_quests.begin(),
-                            endNode->quest.required_quests.end(), node.quest.quest_id))
-                        {
-                            endNode->quest.required_quests.push_back(node.quest.quest_id);
-
-                        }
+                        endNode->quest.condition.questName = node.quest.quest_id;
                     }
                 }
             }
@@ -1512,7 +1360,6 @@ void SaveWork()
     {
         if (node.Typ == "Quest")
         {
-            SetRequiredQuests(node);
             SetQuestComplete(node);
         }
         if (node.Typ == "Character")
@@ -1534,41 +1381,37 @@ void SaveWork()
             j["Typ"] = "Quest";
 
             j["Name"] = node.quest.name;
-            j["QuestID"] = node.quest.quest_id;
-            j["QuestName"] = node.quest.quest_name;
+            j["Quest ID"] = node.quest.quest_id;
+            j["Quest Name"] = node.quest.quest_name;
+            j["Quest Description"] = node.quest.description;
+            j["Quest Objective"] = node.quest.objective;
+            
+            nlohmann::ordered_json objectives = nlohmann::json::array();
+
+            for (auto& rew : node.quest.rewards)
+            {
+                nlohmann::ordered_json reward = nlohmann::json::object();
+
+                
+            }
+
+
+            j["Quest Reward"] = objectives;
+
+
+
+
+
+
+
+
+
+
             j["Category"] = node.quest.category;
             j["AreaName"] = node.quest.area_name;
             j["RecommendedLevel"] = node.quest.recommended_level;
-            j["Description"] = node.quest.description;
 
-            nlohmann::ordered_json objectives = nlohmann::json::array();
 
-            for (auto& obj : node.quest.objectives)
-            {
-                nlohmann::ordered_json jObj = nlohmann::json::object();
-
-                jObj["Objective_ID"] = obj.objective_id;
-                jObj["ObjectiveDescription"] = obj.objective_description;
-
-                nlohmann::ordered_json objectiveTips = nlohmann::json::array();
-
-                for (auto& objTips : obj.objective_tips)
-                {
-                    objectiveTips.push_back(objTips);
-                }
-
-                jObj["ObjectiveTips"] = objectiveTips;
-
-                jObj["CurrentAmount"] = 0;
-                jObj["RequiredAmount"] = obj.required_amount;
-                jObj["HasWorldMarker?"] = obj.has_world_marker;
-                jObj["ObjectiveCompleteAnotherQuest"] = obj.objective_complete_another_quest;
-                jObj["QuestID"] = obj.quest_id;
-
-                objectives.push_back(jObj);
-            }
-
-            j["Objectives"] = objectives;
 
             nlohmann::ordered_json rewards = nlohmann::json::object();
 

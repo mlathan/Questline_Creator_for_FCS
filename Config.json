@@ -1,18 +1,25 @@
 {
-   "Items": [
-      "Axe",
-      "Sword",
-      "Hammer"
-   ],
-   "QuestCategory": [
-      "Talk",
+  "Items": [
+    "Axe",
+    "Sword",
+    "Hammer"
+  ],
+  "QuestCategory": [
+    "Talk",
     "Interact",
     "Collect",
     "Kill",
     "Location"
-   ],
-   "Recently": [
-      "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json",
-      "C:\\Users\\Franzi und Robert\\Desktop\\nochzubearbeiten.json"
-   ]
+  ],
+  "Recently": [
+    "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json",
+    "C:\\Users\\Franzi und Robert\\Desktop\\nochzubearbeiten.json",
+    "C:\\Users\\Franzi und Robert\\Desktop\\testfcs.json"
+  ],
+  "QuestConditions": [
+    "None",
+    "Level",
+    "Quest",
+    "Level & Quest"
+  ]
 }

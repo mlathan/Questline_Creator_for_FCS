@@ -15,7 +15,7 @@ public:
 class QuestCondition
 {
 public:
-    std::string questCondition;
+    std::string questCondition = "None";
     int64_t levelCondition = 1;
     std::string questName;
 };

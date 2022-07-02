@@ -1,25 +1,21 @@
 {
-  "Items": [
-    "Axe",
-    "Sword",
-    "Hammer"
-  ],
-  "QuestCategory": [
-    "Talk",
-    "Interact",
-    "Collect",
-    "Kill",
-    "Location"
-  ],
-  "Recently": [
-    "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json",
-    "C:\\Users\\Franzi und Robert\\Desktop\\nochzubearbeiten.json",
-    "C:\\Users\\Franzi und Robert\\Desktop\\testfcs.json"
-  ],
-  "QuestConditions": [
-    "None",
-    "Level",
-    "Quest",
-    "Level & Quest"
-  ]
+    "Recently": [
+        "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json",
+        "C:\\Users\\Franzi und Robert\\Desktop\\nochzubearbeiten.json",
+        "C:\\Users\\Franzi und Robert\\Desktop\\testfcs.json"
+    ],
+    "QuestCategory": [
+        "Talk",
+        "Interact",
+        "Collect",
+        "Kill",
+        "Location"
+    ],
+    "ItemDataTable": "C:\\Users\\Franzi und Robert\\Documents\\Unreal Projects\\UnknownWorlds\\Content\\FlexibleCombatSystem\\DataTables\\DT_ItemDataInfo.uasset",
+    "QuestConditions": [
+        "None",
+        "Level",
+        "Quest",
+        "Level & Quest"
+    ]
 }

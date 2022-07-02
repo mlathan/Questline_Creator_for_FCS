@@ -20,7 +20,10 @@
 #include "QuestClass.h"
 #include <iostream>
 #include "json/single_include/nlohmann/json.hpp"
-#include <fstream> 
+#include <fstream>
+#include <span>
+#include <cstddef>
+#include <iomanip>
 
 
 
@@ -646,15 +649,6 @@ void Application_Initialize()
 
     if (!json.is_null())
     {
-        nlohmann::ordered_json items = nlohmann::ordered_json::object();
-
-        items = json["Items"];
-
-        for (auto& it : items)
-        {
-            ItemVector.push_back(it);
-        }
-
         nlohmann::ordered_json cate = nlohmann::ordered_json::object();
 
         cate = json["QuestCategory"];
@@ -681,6 +675,8 @@ void Application_Initialize()
         {
             QuestConditionVector.push_back(con);
         }
+
+        PathToItemDatatable = json["ItemDataTable"];
     }
 
     //auto& io = ImGui::GetIO();
@@ -837,11 +833,22 @@ void WriteToConfigJson()
     nlohmann::ordered_json json = nlohmann::json::object();
 
     nlohmann::ordered_json recentlyOpened = nlohmann::json::array();
+    nlohmann::ordered_json categoryJson = nlohmann::json::array();
+    nlohmann::ordered_json conditions = nlohmann::json::array();
 
     for (auto& op : RecentlyOpenedVector)
         recentlyOpened.push_back(op);
 
+    for (auto& cats : QuestCategoryVector)
+        categoryJson.push_back(cats);
+
+    for (auto& cats : QuestConditionVector)
+        conditions.push_back(cats);
+
     json["Recently"] = recentlyOpened;
+    json["QuestCategory"] = categoryJson;
+    json["ItemDataTable"] = PathToItemDatatable;
+    json["QuestConditions"] = conditions;
 
     std::ofstream o("Config.json");
     o << std::setw(json.size()) << json << std::endl;
@@ -874,60 +881,26 @@ void ShowItemCatalog(bool* show = nullptr)
         {
             std::string filename = dlg.GetPathName().GetString();
             PathToItemDatatable = filename;
+
+            WriteToConfigJson();
         }
     }
 
+    if (PathToItemDatatable != "")
+    {
+        try
+        {
 
+        }
+        catch(std::exception& e) 
+        {
+            std::cerr << e.what() << std::endl;
+        }
+    }
 
     std::vector<char*> ItemArray;
     std::transform(ItemVector.begin(), ItemVector.end(), std::back_inserter(ItemArray), convert);
     ImGui::ListBox("##ItemCatalog", &listbox_item_current, ItemArray.data(), ItemVector.size(), 5);
-
-    ImGui::End();
-}
-
-void ShowCategoryCatalog(bool* show = nullptr)
-{
-    static int listbox_item_current = 1;
-
-    ImGui::SetNextWindowSize(ImVec2(350, 400));
-    if (!ImGui::Begin("Quest Category Catalog", show))
-    {
-        ImGui::End();
-        return;
-    }
-
-    if (ImGui::Button("Add Item"))
-        ImGui::OpenPopup("Add Item");
-    ImGui::SameLine();
-    if (ImGui::Button("Remove Item"))
-    {
-        QuestCategoryVector.erase(QuestCategoryVector.begin() + listbox_item_current, QuestCategoryVector.begin() + listbox_item_current + 1);
-        WriteToConfigJson();
-    }
-
-    if (ImGui::BeginPopupModal("Add Item", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-
-        static char bufferItem[100] = "Item";
-        ImGui::InputText("##itemToAdd", bufferItem, 100);
-        ImGui::Separator();
-
-        if (ImGui::Button("Add", ImVec2(120, 0))) 
-        {
-            QuestCategoryVector.push_back(bufferItem);
-            WriteToConfigJson();
-            ImGui::CloseCurrentPopup(); 
-        }
-        ImGui::SetItemDefaultFocus();
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-        ImGui::EndPopup();
-    }
-
-    std::vector<char*> ItemArray;
-    std::transform(QuestCategoryVector.begin(), QuestCategoryVector.end(), std::back_inserter(ItemArray), convert);
-    ImGui::ListBox("##ItemCatalog", &listbox_item_current, ItemArray.data(), QuestCategoryVector.size(), 8);
 
     ImGui::End();
 }
@@ -1853,7 +1826,6 @@ void Application_Frame()
 
     static bool showStyleEditor = false;
     static bool showItemCatalog = false;
-    static bool showCategoryCatalog = false;
     static bool showAboutWindow = false;
 
     auto& io = ImGui::GetIO();
@@ -1867,9 +1839,7 @@ void Application_Frame()
         }
         if (ImGui::BeginMenu("Options"))
         {
-            ImGui::MenuItem("Add Item", NULL, &showItemCatalog);
-            ImGui::MenuItem("Add Quest Category", NULL, &showCategoryCatalog);
-
+            ImGui::MenuItem("Item Catalog", NULL, &showItemCatalog);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("About"))
@@ -1880,14 +1850,8 @@ void Application_Frame()
         ImGui::EndMenuBar();
     }
 
-    if (showStyleEditor)
-        ShowStyleEditor(&showStyleEditor);
-
     if (showItemCatalog)
         ShowItemCatalog(&showItemCatalog);
-
-    if (showCategoryCatalog)
-        ShowCategoryCatalog(&showCategoryCatalog);
 
     if (showAboutWindow)
         ShowAboutWindow(&showAboutWindow);

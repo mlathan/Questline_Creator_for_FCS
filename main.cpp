@@ -1201,21 +1201,33 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                             ImGui::SameLine();
                             if (ImGui::TreeNode((void*)(intptr_t)k, "Reward %d", k + 1))
                             {
-                                const char* item_current = node->quest.rewards.at(k).rowName.data();
-                                ImGui::Text("Item"); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::BeginCombo("##item", item_current))
+                                char* item_current = (char*)node->quest.rewards.at(k).dataTable.data();
+
+                                ImGui::Text("DataTable"); ImGui::Spacing(); ImGui::SameLine();
+                                ImGui::InputText("##datatable", item_current, 200);
+                                ImGui::SameLine();
+                                if (ImGui::Button("..."))
                                 {
-                                    for (int n = 0; n < ItemVector.size(); n++)
+                                    static char BASED_CODE szFilter[] = "Data Table (*.uasset)|*.uasset|";
+
+                                    CFileDialog dlg(true, CString(".uasset"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter);
+
+                                    auto result = dlg.DoModal();
+                                    if (result != IDOK) 
+                                        return;
+                                    else
                                     {
-                                        bool is_selected = (item_current == ItemVector.at(n));
-                                        if (ImGui::Selectable(ItemVector.at(n).c_str(), is_selected)) {
-                                            item_current = ItemVector.at(n).c_str();
-                                            node->quest.rewards.at(k).dataTable = ItemVector.at(n);
-                                        }
-                                        if (is_selected)
-                                            ImGui::SetItemDefaultFocus();
+                                        std::string filename = dlg.GetPathName().GetString();
+                                        node->quest.rewards.at(k).dataTable = filename;
                                     }
-                                    ImGui::EndCombo();
+                                }
+
+                                char* rowName = (char*)node->quest.rewards.at(k).rowName.data();
+
+                                ImGui::Text("Row Name: "); ImGui::Spacing(); ImGui::SameLine();
+                                if (ImGui::InputText("##rowName", rowName, 51))
+                                {
+                                    node->quest.rewards.at(k).rowName = rowName;
                                 }
 
                                 int amount = node->quest.rewards.at(k).quantity;

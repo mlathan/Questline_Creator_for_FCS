@@ -7,7 +7,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "external/ImGui/imgui_internal.h"
 
-
 #include <string>
 #include <vector>
 #include <map>
@@ -173,6 +172,22 @@ struct NodeIdLess
         return lhs.AsPointer() < rhs.AsPointer();
     }
 };
+
+void GetRowsOfDataTable()
+{
+    std::ifstream t("C:\\Users\\Franzi und Robert\\Documents\\Unreal Projects\\UnknownWorlds\\Content\\FlexibleCombatSystem\\DataTables\\DT_ItemDataInfo.uasset");
+
+    t.seekg(0, std::ios::end);
+    size_t size = t.tellg();
+    std::string buffer(size, ' ');
+    t.seekg(0);
+    t.read(&buffer[0], size);
+
+
+
+    std::ofstream o("Test.txt");
+    o << std::setw(buffer.size()) << buffer << std::endl;
+}
 
 static const float          s_TouchTime = 1.0f;
 static std::map<ed::NodeId, float, NodeIdLess> s_NodeTouchTime;
@@ -618,6 +633,8 @@ void SetupStyle()
 void Application_Initialize()
 {
     SetupStyle();
+
+    GetRowsOfDataTable();
 
     s_HeaderBackground = Application_LoadTexture("data/BlueprintBackground.png");
     s_SaveIcon = Application_LoadTexture("data/ic_save_white_24dp.png");
@@ -1204,7 +1221,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                 char* item_current = (char*)node->quest.rewards.at(k).dataTable.data();
 
                                 ImGui::Text("DataTable"); ImGui::Spacing(); ImGui::SameLine();
-                                ImGui::InputText("##datatable", item_current, 200);
+                                ImGui::InputText("##datatable", item_current, 300);
                                 ImGui::SameLine();
                                 if (ImGui::Button("..."))
                                 {

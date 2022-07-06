@@ -173,20 +173,44 @@ struct NodeIdLess
     }
 };
 
-void GetRowsOfDataTable()
+std::vector<std::string> GetRowsOfDataTable(std::string path)
 {
-    std::ifstream t("C:\\Users\\Franzi und Robert\\Documents\\Unreal Projects\\UnknownWorlds\\Content\\FlexibleCombatSystem\\DataTables\\DT_ItemDataInfo.uasset");
+    std::vector<std::string> rowNames;
 
-    t.seekg(0, std::ios::end);
-    size_t size = t.tellg();
-    std::string buffer(size, ' ');
-    t.seekg(0);
-    t.read(&buffer[0], size);
+    if (path.size() > 0)
+    {
+        std::ifstream t(path, std::ios::binary);
 
+        t.seekg(0, std::ios::end);
+        size_t size = t.tellg();
+        std::string buffer(size, ' ');
+        t.seekg(0);
+        t.read(&buffer[0], size);
 
+        for (int i = 0; i < size; ++i)
+        {
+            if (buffer[i] == 'G' && buffer[i + 1] == 'a' && buffer[i + 2] == 'm' && buffer[i + 3] == 'e')
+            {
+                std::string tmpStr;
+                int count = i;
+                while (buffer[count] != '\0')
+                {
+                    tmpStr.push_back(buffer[count]);
+                    count++;
+                }
 
-    std::ofstream o("Test.txt");
-    o << std::setw(buffer.size()) << buffer << std::endl;
+                size_t found = tmpStr.find_last_of('/');
+
+                tmpStr.erase(0, found + 1);
+
+                rowNames.push_back(tmpStr);
+
+                i = count;
+            }
+        }
+    }
+    
+    return rowNames;
 }
 
 static const float          s_TouchTime = 1.0f;
@@ -634,8 +658,6 @@ void Application_Initialize()
 {
     SetupStyle();
 
-    GetRowsOfDataTable();
-
     s_HeaderBackground = Application_LoadTexture("data/BlueprintBackground.png");
     s_SaveIcon = Application_LoadTexture("data/ic_save_white_24dp.png");
     s_RestoreIcon = Application_LoadTexture("data/ic_restore_white_24dp.png");
@@ -869,57 +891,6 @@ void WriteToConfigJson()
 
     std::ofstream o("Config.json");
     o << std::setw(json.size()) << json << std::endl;
-}
-
-void ShowItemCatalog(bool* show = nullptr)
-{
-    static int listbox_item_current = 1;
-
-    ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 100, 400));
-    if (!ImGui::Begin("Item Catalog", show))
-    {
-        ImGui::End();
-        return;
-    }
-
-    ImGui::Text("Path to Item Datatable");
-    ImGui::InputText("##pathToItems", PathToItemDatatable, 51);
-    ImGui::SameLine();
-    if (ImGui::Button("..."))
-    {
-        static char BASED_CODE szFilter[] = "Data Table (*.uasset)|*.uasset|";
-
-        CFileDialog dlg(true, CString(".uasset"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter);
-
-        auto result = dlg.DoModal();
-        if (result != IDOK) 
-            return;
-        else
-        {
-            std::string filename = dlg.GetPathName().GetString();
-            PathToItemDatatable = filename;
-
-            WriteToConfigJson();
-        }
-    }
-
-    if (PathToItemDatatable != "")
-    {
-        try
-        {
-
-        }
-        catch(std::exception& e) 
-        {
-            std::cerr << e.what() << std::endl;
-        }
-    }
-
-    std::vector<char*> ItemArray;
-    std::transform(ItemVector.begin(), ItemVector.end(), std::back_inserter(ItemArray), convert);
-    ImGui::ListBox("##ItemCatalog", &listbox_item_current, ItemArray.data(), ItemVector.size(), 5);
-
-    ImGui::End();
 }
 
 void ShowAboutWindow(bool* show = nullptr)
@@ -1239,12 +1210,22 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                                     }
                                 }
 
-                                char* rowName = (char*)node->quest.rewards.at(k).rowName.data();
-
-                                ImGui::Text("Row Name: "); ImGui::Spacing(); ImGui::SameLine();
-                                if (ImGui::InputText("##rowName", rowName, 51))
+                                const char* rownames = node->quest.rewards.at(k).rowName.data();
+                                std::vector<std::string> rows = GetRowsOfDataTable(node->quest.rewards.at(k).dataTable);
+                                ImGui::Text("Row Name"); ImGui::Spacing(); ImGui::SameLine();
+                                if (ImGui::BeginCombo("##rownames", rownames))
                                 {
-                                    node->quest.rewards.at(k).rowName = rowName;
+                                    for (int n = 0; n < rows.size(); n++)
+                                    {
+                                        bool is_selected = (rownames == rows.at(n));
+                                        if (ImGui::Selectable(rows.at(n).c_str(), is_selected)) {
+                                            rownames = rows.at(n).c_str();
+                                            node->quest.rewards.at(k).rowName = rows.at(n);
+                                        }
+                                        if (is_selected)
+                                            ImGui::SetItemDefaultFocus();
+                                    }
+                                    ImGui::EndCombo();
                                 }
 
                                 int amount = node->quest.rewards.at(k).quantity;
@@ -1854,7 +1835,6 @@ void Application_Frame()
     UpdateTouch();
 
     static bool showStyleEditor = false;
-    static bool showItemCatalog = false;
     static bool showAboutWindow = false;
 
     auto& io = ImGui::GetIO();
@@ -1868,7 +1848,6 @@ void Application_Frame()
         }
         if (ImGui::BeginMenu("Options"))
         {
-            ImGui::MenuItem("Item Catalog", NULL, &showItemCatalog);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("About"))
@@ -1878,9 +1857,6 @@ void Application_Frame()
         }
         ImGui::EndMenuBar();
     }
-
-    if (showItemCatalog)
-        ShowItemCatalog(&showItemCatalog);
 
     if (showAboutWindow)
         ShowAboutWindow(&showAboutWindow);

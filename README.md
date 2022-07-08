@@ -33,6 +33,8 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
+This is a helper tool for creating quests for the [Flexible Combat System from Jon Beardsell](https://www.unrealengine.com/marketplace/en-US/product/flexible-combat-system-01)
+
 This tool was created using the [Dear ImGui](https://github.com/ocornut/imgui) API and the Node Editor Template from [thedmd](https://github.com/thedmd/imgui-node-editor)
 
 <!-- GETTING STARTED -->

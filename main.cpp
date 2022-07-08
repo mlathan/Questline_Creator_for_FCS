@@ -24,8 +24,6 @@
 #include <cstddef>
 #include <iomanip>
 
-
-
 static inline ImRect ImGui_GetItemRect()
 {
     return ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
@@ -156,12 +154,10 @@ static ImTextureID          s_RestoreIcon = nullptr;
 
 static QuestType::QuestList s_QuestList;
 
-static std::vector<std::string> ItemVector;
 static std::vector<std::string> QuestCategoryVector;
 static std::vector<std::string> RecentlyOpenedVector;
 static std::vector<std::string> QuestConditionVector;
 
-static std::string PathToItemDatatable;
 static std::string FilePathOpened;
 
 
@@ -730,6 +726,8 @@ void Application_Initialize()
     {
         std::ofstream o("Config.json");
         std::ifstream f("Config.json");
+
+        o.close();
     }
 
     nlohmann::ordered_json json;
@@ -769,9 +767,9 @@ void Application_Initialize()
         {
             QuestConditionVector.push_back(con);
         }
-
-        PathToItemDatatable = json["ItemDataTable"];
     }
+
+    f.close();
 
     //auto& io = ImGui::GetIO();
 }
@@ -848,80 +846,6 @@ void DrawPinIcon(const Pin& pin, bool connected, int alpha)
     ax::Widgets::Icon(ImVec2(s_PinIconSize, s_PinIconSize), iconType, connected, color, ImColor(32, 32, 32, alpha));
 };
 
-void ShowStyleEditor(bool* show = nullptr)
-{
-    if (!ImGui::Begin("Style", show))
-    {
-        ImGui::End();
-        return;
-    }
-
-    auto paneWidth = ImGui::GetContentRegionAvailWidth();
-
-    auto& editorStyle = ed::GetStyle();
-    ImGui::BeginHorizontal("Style buttons", ImVec2(paneWidth, 0), 1.0f);
-    ImGui::TextUnformatted("Values");
-    ImGui::Spring();
-    if (ImGui::Button("Reset to defaults"))
-        editorStyle = ed::Style();
-    ImGui::EndHorizontal();
-    ImGui::Spacing();
-    ImGui::DragFloat4("Node Padding", &editorStyle.NodePadding.x, 0.1f, 0.0f, 40.0f);
-    ImGui::DragFloat("Node Rounding", &editorStyle.NodeRounding, 0.1f, 0.0f, 40.0f);
-    ImGui::DragFloat("Node Border Width", &editorStyle.NodeBorderWidth, 0.1f, 0.0f, 15.0f);
-    ImGui::DragFloat("Hovered Node Border Width", &editorStyle.HoveredNodeBorderWidth, 0.1f, 0.0f, 15.0f);
-    ImGui::DragFloat("Selected Node Border Width", &editorStyle.SelectedNodeBorderWidth, 0.1f, 0.0f, 15.0f);
-    ImGui::DragFloat("Pin Rounding", &editorStyle.PinRounding, 0.1f, 0.0f, 40.0f);
-    ImGui::DragFloat("Pin Border Width", &editorStyle.PinBorderWidth, 0.1f, 0.0f, 15.0f);
-    ImGui::DragFloat("Link Strength", &editorStyle.LinkStrength, 1.0f, 0.0f, 500.0f);
-    //ImVec2  SourceDirection;
-    //ImVec2  TargetDirection;
-    ImGui::DragFloat("Scroll Duration", &editorStyle.ScrollDuration, 0.001f, 0.0f, 2.0f);
-    ImGui::DragFloat("Flow Marker Distance", &editorStyle.FlowMarkerDistance, 1.0f, 1.0f, 200.0f);
-    ImGui::DragFloat("Flow Speed", &editorStyle.FlowSpeed, 1.0f, 1.0f, 2000.0f);
-    ImGui::DragFloat("Flow Duration", &editorStyle.FlowDuration, 0.001f, 0.0f, 5.0f);
-    //ImVec2  PivotAlignment;
-    //ImVec2  PivotSize;
-    //ImVec2  PivotScale;
-    //float   PinCorners;
-    //float   PinRadius;
-    //float   PinArrowSize;
-    //float   PinArrowWidth;
-    ImGui::DragFloat("Group Rounding", &editorStyle.GroupRounding, 0.1f, 0.0f, 40.0f);
-    ImGui::DragFloat("Group Border Width", &editorStyle.GroupBorderWidth, 0.1f, 0.0f, 15.0f);
-
-    ImGui::Separator();
-
-    static ImGuiColorEditFlags edit_mode = ImGuiColorEditFlags_RGB;
-    ImGui::BeginHorizontal("Color Mode", ImVec2(paneWidth, 0), 1.0f);
-    ImGui::TextUnformatted("Filter Colors");
-    ImGui::Spring();
-    ImGui::RadioButton("RGB", &edit_mode, ImGuiColorEditFlags_RGB);
-    ImGui::Spring(0);
-    ImGui::RadioButton("HSV", &edit_mode, ImGuiColorEditFlags_HSV);
-    ImGui::Spring(0);
-    ImGui::RadioButton("HEX", &edit_mode, ImGuiColorEditFlags_HEX);
-    ImGui::EndHorizontal();
-
-    static ImGuiTextFilter filter;
-    filter.Draw("", paneWidth);
-
-    ImGui::Spacing();
-
-    ImGui::PushItemWidth(-160);
-    for (int i = 0; i < ed::StyleColor_Count; ++i)
-    {
-        auto name = ed::GetStyleColorName((ed::StyleColor)i);
-        if (!filter.PassFilter(name))
-            continue;
-
-        ImGui::ColorEdit4(name, &editorStyle.Colors[i].x, edit_mode);
-    }
-    ImGui::PopItemWidth();
-
-    ImGui::End();
-}
-
 void WriteToConfigJson()
 {
     nlohmann::ordered_json json = nlohmann::json::object();
@@ -941,11 +865,12 @@ void WriteToConfigJson()
 
     json["Recently"] = recentlyOpened;
     json["QuestCategory"] = categoryJson;
-    json["ItemDataTable"] = PathToItemDatatable;
     json["QuestConditions"] = conditions;
 
     std::ofstream o("Config.json");
     o << std::setw(json.size()) << json << std::endl;
+
+    o.close();
 }
 
 void ShowAboutWindow(bool* show = nullptr)
@@ -1207,8 +1132,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questDescription = (char*)node->quest.description.data();
 
                     ImGui::Text("Description: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputTextMultiline("##questDescription", questDescription, 5000,
-                        ImVec2(-FLT_MIN, io.DisplaySize.y / 2 - 300.0f)))
+                    if (ImGui::InputText("##questDescription", questDescription, 101))
                     {
                         node->quest.description = questDescription;
                     }
@@ -1216,8 +1140,7 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     char* questObjective = (char*)node->quest.objective.data();
 
                     ImGui::Text("Objective: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputTextMultiline("##questObjective", questObjective, 5000,
-                        ImVec2(-FLT_MIN, io.DisplaySize.y / 2 - 300.0f)))
+                    if (ImGui::InputText("##questObjective", questObjective, 101))
                     {
                         node->quest.objective = questObjective;
                     }
@@ -1522,6 +1445,10 @@ void SaveWork()
         std::string filename = FilePathOpened;
         std::ofstream o(filename);
         o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
+
+        FilePathOpened = filename;
+
+        o.close();
     }
     else
     {
@@ -1537,6 +1464,8 @@ void SaveWork()
             o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
 
             FilePathOpened = filename;
+
+            o.close();
         }
     }
 }
@@ -1638,6 +1567,8 @@ void SaveWorkAs()
         o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
 
         FilePathOpened = filename;
+
+        o.close();
     }
 }
 
@@ -1729,7 +1660,11 @@ void ExportToJson()
         std::string filename = dlg.GetPathName().GetString();
         std::ofstream o(filename);
         o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
+
+        o.close();
     }
+
+    jsonObjects.~basic_json();
 }
 
 void CreateLinks()
@@ -1936,7 +1871,6 @@ void Application_Frame()
 {
     UpdateTouch();
 
-    static bool showStyleEditor = false;
     static bool showAboutWindow = false;
 
     auto& io = ImGui::GetIO();

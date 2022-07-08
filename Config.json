@@ -1,19 +1,17 @@
 {
-    "Recently": [
-        ""
-    ],
-    "QuestCategory": [
-        "Talk",
-        "Interact",
-        "Collect",
-        "Kill",
-        "Location"
-    ],
-    "ItemDataTable": "",
-    "QuestConditions": [
-        "None",
-        "Level",
-        "Quest",
-        "Level & Quest"
-    ]
+   "Recently": [
+   ],
+   "QuestCategory": [
+      "Talk",
+      "Interact",
+      "Collect",
+      "Kill",
+      "Location"
+   ],
+   "QuestConditions": [
+      "None",
+      "Level",
+      "Quest",
+      "Level & Quest"
+   ]
 }

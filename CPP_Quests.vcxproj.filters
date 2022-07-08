@@ -139,6 +139,8 @@
     <None Include="Config.json" />
     <None Include="Blueprints.json" />
     <None Include="NodeEditor.json" />
+    <None Include=".gitignore" />
+    <None Include=".gitattributes" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\BlueprintBackground.png">

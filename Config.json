@@ -1,9 +1,5 @@
 {
     "Recently": [
-        "C:\\Users\\Franzi und Robert\\Desktop\\saveState.json",
-        "C:\\Users\\Franzi und Robert\\Desktop\\nochzubearbeiten.json",
-        "C:\\Users\\Franzi und Robert\\Desktop\\testfcs.json",
-        "C:\\Users\\Franzi und Robert\\Desktop\\saveTest.json"
     ],
     "QuestCategory": [
         "Talk",
@@ -12,7 +8,7 @@
         "Kill",
         "Location"
     ],
-    "ItemDataTable": "C:\\Users\\Franzi und Robert\\Documents\\Unreal Projects\\UnknownWorlds\\Content\\FlexibleCombatSystem\\DataTables\\DT_ItemDataInfo.uasset",
+    "ItemDataTable": "",
     "QuestConditions": [
         "None",
         "Level",

@@ -1913,7 +1913,7 @@ void ShowMenuFile()
 
     ImGui::Separator();
 
-    if (ImGui::MenuItem("Export as Json")) 
+    if (ImGui::MenuItem("Export as Json for UE Datatable")) 
     {
         ExportToJson();
     }

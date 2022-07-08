@@ -67,6 +67,8 @@
     <ClInclude Include="utilities\widgets.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
     <None Include="Blueprints.json" />
     <None Include="Config.json" />
     <None Include="external\ImGuiNodes\imgui_bezier_math.inl" />

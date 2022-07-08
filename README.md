@@ -55,19 +55,19 @@ This tool was created using the [Dear ImGui](https://github.com/ocornut/imgui) A
 ## Usage
 
 You can add quests and characters with Right-Click (The characters are just to help keep track of the story)
-[](GIF)
+[](https://github.com/Sittlon/Questline_Creator_for_FCS/blob/master/gifs/createQuests.gif)
 
 You can edit the properties of the quests and characters by clicking the nodes.
-[](GIF)
+[](https://github.com/Sittlon/Questline_Creator_for_FCS/blob/master/gifs/ChangeQuestProperties.gif)
 
 You can also chain quests together to make a questline. The attributes will be set automaticly when exporting the quests.
-[](GIF)
+[](https://github.com/Sittlon/Questline_Creator_for_FCS/blob/master/gifs/ChainQuest.gif)
 
 You can save your progress in the menu and open it later. Everything will be placed where you left it.
-[](GIF)
+[](https://github.com/Sittlon/Questline_Creator_for_FCS/blob/master/gifs/Menu.gif)
 
 When you are finished, you can export everything as a json file, which can be referenced in the data table from the FCS quests.
-[](GIF)
+[](https://github.com/Sittlon/Questline_Creator_for_FCS/blob/master/gifs/ExportToUE.gif)
 
 
 <!-- CONTACT -->

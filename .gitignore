@@ -34,3 +34,6 @@
 .vs/
 x64/
 Win32/
+
+json/
+external/

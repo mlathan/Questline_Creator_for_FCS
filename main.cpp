@@ -1944,10 +1944,6 @@ void Application_Frame()
             ShowMenuFile();
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Options"))
-        {
-            ImGui::EndMenu();
-        }
         if (ImGui::BeginMenu("About"))
         {
             ImGui::MenuItem("Questline Creator - Developer", NULL, &showAboutWindow);

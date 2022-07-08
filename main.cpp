@@ -1535,6 +1535,8 @@ void SaveWork()
             std::string filename = dlg.GetPathName().GetString();
             std::ofstream o(filename);
             o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
+
+            FilePathOpened = filename;
         }
     }
 }
@@ -1634,6 +1636,8 @@ void SaveWorkAs()
         std::string filename = dlg.GetPathName().GetString();
         std::ofstream o(filename);
         o << std::setw(jsonObjects.size()) << jsonObjects << std::endl;
+
+        FilePathOpened = filename;
     }
 }
 
@@ -2719,6 +2723,9 @@ void Application_Frame()
     
     ImGui::PopStyleVar();
     ed::Resume();
+
+    if (FilePathOpened.size() > 0)
+        SaveWork();
 # endif
     ed::End();
 }

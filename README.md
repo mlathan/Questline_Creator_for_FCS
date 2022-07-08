@@ -40,7 +40,7 @@ This tool was created using the [Dear ImGui](https://github.com/ocornut/imgui) A
 
 ### Installation
 
-1. Download the latest release from [here](https://firebasestorage.googleapis.com/v0/b/personalpage-2a66e.appspot.com/o/FCS%20-%20Questline%20Creator.msi?alt=media&token=e40fc86f-fecc-4121-8c02-6cd91bbb7f4f).
+1. Download the latest release from [here](https://github.com/Sittlon/Questline_Creator_for_FCS/releases).
 2. Install the Application
 
 <!-- USAGE EXAMPLES -->

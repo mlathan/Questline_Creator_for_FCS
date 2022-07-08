@@ -141,6 +141,7 @@
     <None Include="NodeEditor.json" />
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\BlueprintBackground.png">

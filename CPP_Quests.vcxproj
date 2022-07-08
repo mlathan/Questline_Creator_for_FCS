@@ -75,6 +75,7 @@
     <None Include="external\ImGuiNodes\imgui_extra_math.inl" />
     <None Include="external\ImGuiNodes\imgui_node_editor_internal.inl" />
     <None Include="NodeEditor.json" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\BlueprintBackground.png" />

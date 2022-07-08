@@ -173,7 +173,25 @@ struct NodeIdLess
     }
 };
 
-std::vector<std::string> GetRowsOfDataTable(std::string path)
+bool replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
+}
+
+std::vector<std::string> GetRowsOfDataTable(std::string& path)
 {
     std::vector<std::string> rowNames;
 
@@ -184,6 +202,7 @@ std::vector<std::string> GetRowsOfDataTable(std::string path)
         t.seekg(0, std::ios::end);
         size_t size = t.tellg();
         std::string buffer(size, ' ');
+        std::string result;
         t.seekg(0);
         t.read(&buffer[0], size);
 
@@ -203,13 +222,49 @@ std::vector<std::string> GetRowsOfDataTable(std::string path)
 
                 tmpStr.erase(0, found + 1);
 
-                rowNames.push_back(tmpStr);
+                size_t dot = tmpStr.find_last_of('.');
+
+                if (dot != std::string::npos)
+                {
+                    try
+                    {
+                        found = tmpStr.find_first_of('.');
+
+                        tmpStr.erase(0, found + 1);
+
+                        found = tmpStr.find_first_of('.');
+
+                        tmpStr.erase(0, found + 1);
+                    }
+                    catch (std::exception ex)
+                    {
+                        tmpStr = "";
+                    }
+                }
+
+                while (tmpStr.find_last_of('.') != std::string::npos)
+                {
+                    found = tmpStr.find_last_of('.');
+
+                    tmpStr.erase(found, tmpStr.size() - found + 1);
+                }
+
+                if (tmpStr.find("Name_") != std::string::npos || tmpStr.find("Description_") != std::string::npos)
+                    tmpStr = "";
+
+                if (tmpStr != "")
+                    rowNames.push_back(tmpStr);
 
                 i = count;
             }
         }
+
+        std::sort(rowNames.begin(), rowNames.end());
+        rowNames.erase(std::unique(rowNames.begin(), rowNames.end()), rowNames.end());
+
+        t.close();
     }
-    
+
     return rowNames;
 }
 
@@ -1049,7 +1104,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                 ed::NodeId nodeId = selectedNodes[i];
                 Node* node = FindNode(nodeId);
 
-                ImGui::Text((char*)std::string("Node (" + node->Name + ")").c_str());
+                if(s_Nodes.size() > 0 && node)
+                    ImGui::Text((char*)std::string("Node (" + node->Name + ")").c_str());
             } 
             for (int i = 0; i < linkCount; ++i)
             {
@@ -1088,7 +1144,9 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
     }
 
     auto* node = FindNode(contextNodeId);
-    bool isSel = std::find(selectedNodes.begin(), selectedNodes.end(), node->ID) != selectedNodes.end();
+    bool isSel = false;
+    if(s_Nodes.size() > 0 && node)
+        isSel = std::find(selectedNodes.begin(), selectedNodes.end(), node->ID) != selectedNodes.end();
 
     ImGui::BeginChild("Properties", ImVec2(mainWidth - 12.0f, io.DisplaySize.y / 2 + 100.0f), true);
 
@@ -1238,7 +1296,6 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
 
                                 ImGui::TreePop();
                             }
-
                         }
 
                         ImGui::TreePop();
@@ -1615,7 +1672,22 @@ void ExportToJson()
                 nlohmann::ordered_json reward = nlohmann::json::object();
                 nlohmann::ordered_json rewardObject = nlohmann::json::object();
 
-                rewardObject["DataTable"] = rew.dataTable;
+                std::string path = rew.dataTable;
+
+                size_t pos = path.find("Content");
+                path.erase(0, pos);
+                replace(path, "Content", "Game");
+                pos = path.find_last_of('.');
+                path.erase(pos + 1);
+                pos = path.find_last_of("\\");
+                std::string tm = path.substr(pos + 1);
+                tm.erase(tm.find('.'));
+                path.append(tm);
+                replaceAll(path, "\\", "/");
+                path.insert(0, "DataTable'");
+                path.append("'");
+
+                rewardObject["DataTable"] = path;
                 rewardObject["RowName"] = rew.rowName;
 
                 reward["Reward"] = rewardObject;
@@ -1688,6 +1760,22 @@ void CreateLinks()
 
 void OpenFromJson(std::string path = "")
 {
+    if (s_Nodes.size() > 0)
+    {
+        int result = MessageBox(NULL, "There are already Nodes placed. They will be deleted. Do you want to continue?", NULL, MB_YESNO);
+        if (result == 6)
+        {
+            s_Nodes.clear();
+            s_Links.clear();
+
+            FilePathOpened.clear();
+        }
+        else if(result == 7)
+        {
+            return;
+        }
+    }
+
     static char BASED_CODE szFilter[] = "Json Node Files (*.json)|*.json|";
 
     std::string pathName;
@@ -1706,7 +1794,6 @@ void OpenFromJson(std::string path = "")
     {
         pathName = path;
     }
-
 
     if(pathName != "")
     {
@@ -1738,10 +1825,18 @@ void OpenFromJson(std::string path = "")
                     nlohmann::ordered_json obj = nlohmann::ordered_json::array();
                     obj = value["Quest Reward"];
 
-                    for (auto& rewards : obj)
+                    for (auto& rews : obj)
                     {
                         Rewards rewards;
-                        
+
+                        nlohmann::ordered_json rewa = nlohmann::ordered_json::object();
+                        rewa = rews["Reward"];
+
+                        rewards.dataTable = rewa["DataTable"];
+                        rewards.rowName = rewa["RowName"];
+                        rewards.quantity = rews["Quantity"];
+
+                        node->quest.rewards.push_back(rewards);
                     }
 
                     node->quest.category = value["Quest Type"];
@@ -1789,9 +1884,9 @@ void ShowMenuFile()
         s_Nodes.clear();
         s_Links.clear();
 
-        FilePathOpened = "";
+        FilePathOpened.clear();
     }
-    if (ImGui::MenuItem("Open", "Ctrl+O")) 
+    if (ImGui::MenuItem("Open")) 
     {
         OpenFromJson();
     }
@@ -1807,7 +1902,7 @@ void ShowMenuFile()
 
         ImGui::EndMenu();
     }
-    if (ImGui::MenuItem("Save", "Ctrl+S")) 
+    if (ImGui::MenuItem("Save")) 
     {
         SaveWork();
     }
@@ -1825,8 +1920,11 @@ void ShowMenuFile()
 
     ImGui::Separator();
 
-    if (ImGui::MenuItem("Quit", "Alt+F4")) 
+    if (ImGui::MenuItem("Quit")) 
     {
+        int quit = MessageBox(NULL, "Do you want to quit?", NULL, MB_YESNO);
+        if(quit == 6)
+            PostQuitMessage(0);
     }
 }
 

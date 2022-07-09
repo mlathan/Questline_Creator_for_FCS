@@ -1087,62 +1087,71 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
             {
                 if (ImGui::BeginTabItem("Quest Properties"))
                 {
-                    char* questID = (char*)node->quest.quest_id.data();
-
-                    ImGui::Text("Quest ID: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questID", questID, 51))
+                    try
                     {
-                        node->quest.quest_id = questID;
-                        node->quest.name = questID;
-                    }
 
-                    char* questName = (char*)node->quest.quest_name.c_str();
+                        char* questID = (char*)node->quest.quest_id.data();
 
-                    ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questName", questName, 51))
-                    {
-                        node->quest.quest_name = questName;
-                    }
-
-                    const char* current_Category = node->quest.category.data();
-                    ImGui::Text("Category"); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::BeginCombo("##category", current_Category))
-                    {
-                        for (int n = 0; n < QuestCategoryVector.size(); n++)
+                        ImGui::Text("Quest ID: "); ImGui::Spacing(); ImGui::SameLine();
+                        if (ImGui::InputText("##questID", questID, 801))
                         {
-                            bool is_selected = (current_Category == QuestCategoryVector.at(n));
-                            if (ImGui::Selectable(QuestCategoryVector.at(n).c_str(), is_selected)) {
-                                current_Category = QuestCategoryVector.at(n).c_str();
-                                node->quest.category = QuestCategoryVector.at(n);
-                            }
-                            if (is_selected)
-                                ImGui::SetItemDefaultFocus();
+                            node->quest.quest_id = questID;
+                            node->quest.name = questID;
                         }
-                        ImGui::EndCombo();
+
+                        char* questName = (char*)node->quest.quest_name.c_str();
+
+                        ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
+                        if (ImGui::InputText("##questName", questName, 801))
+                        {
+                            node->quest.quest_name = questName;
+                        }
+
+                        const char* current_Category = node->quest.category.data();
+                        ImGui::Text("Category"); ImGui::Spacing(); ImGui::SameLine();
+                        if (ImGui::BeginCombo("##category", current_Category))
+                        {
+                            for (int n = 0; n < QuestCategoryVector.size(); n++)
+                            {
+                                bool is_selected = (current_Category == QuestCategoryVector.at(n));
+                                if (ImGui::Selectable(QuestCategoryVector.at(n).c_str(), is_selected))
+                                {
+                                    current_Category = QuestCategoryVector.at(n).c_str();
+                                    node->quest.category = QuestCategoryVector.at(n);
+                                }
+                                if (is_selected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+
+                        int amount = node->quest.collection_number;
+
+                        ImGui::Text("Collection Number: "); ImGui::Spacing(); ImGui::SameLine();
+                        if (ImGui::InputInt("##collectionNumber", &amount))
+                        {
+                            node->quest.collection_number = amount;
+                        }
+
+                        char* questDescription = (char*)node->quest.description.data();
+
+                        ImGui::Text("Description: "); ImGui::Spacing(); ImGui::SameLine();
+                        if (ImGui::InputText("##questDescription", questDescription, 501))
+                        {
+                            node->quest.description = questDescription;
+                        }
+
+                        char* questObjective = (char*)node->quest.objective.data();
+
+                        ImGui::Text("Objective: "); ImGui::Spacing(); ImGui::SameLine();
+                        if (ImGui::InputText("##questObjective", questObjective, 501, ImGuiInputTextFlags_None))
+                        {
+                            node->quest.objective = node->quest.objective.empty() ? "" : questObjective;
+                        }
+
                     }
-
-                    int amount = node->quest.collection_number;
-
-                    ImGui::Text("Collection Number: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputInt("##collectionNumber", &amount))
+                    catch (std::exception ex)
                     {
-                        node->quest.collection_number = amount;
-                    }
-
-                    char* questDescription = (char*)node->quest.description.data();
-
-                    ImGui::Text("Description: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questDescription", questDescription, 101))
-                    {
-                        node->quest.description = questDescription;
-                    }
-
-                    char* questObjective = (char*)node->quest.objective.data();
-
-                    ImGui::Text("Objective: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputText("##questObjective", questObjective, 101))
-                    {
-                        node->quest.objective = questObjective;
                     }
 
                     ImGui::EndTabItem();

@@ -6,6 +6,7 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "external/ImGui/imgui_internal.h"
+#include "external/ImGui/imgui_stdlib.h"
 
 #include <string>
 #include <vector>
@@ -1087,72 +1088,44 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
             {
                 if (ImGui::BeginTabItem("Quest Properties"))
                 {
-                    try
+                    ImGui::Text("Quest ID: "); ImGui::Spacing(); ImGui::SameLine();
+                    ImGui::InputText("##questID", &node->quest.quest_id);
+
+                    ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
+                    ImGui::InputText("##questName", &node->quest.quest_name);
+
+                    const char* current_Category = node->quest.category.data();
+                    ImGui::Text("Category"); ImGui::Spacing(); ImGui::SameLine();
+                    if (ImGui::BeginCombo("##category", current_Category))
                     {
-
-                        char* questID = (char*)node->quest.quest_id.data();
-
-                        ImGui::Text("Quest ID: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputText("##questID", questID, 801))
+                        for (int n = 0; n < QuestCategoryVector.size(); n++)
                         {
-                            node->quest.quest_id = questID;
-                            node->quest.name = questID;
-                        }
-
-                        char* questName = (char*)node->quest.quest_name.c_str();
-
-                        ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputText("##questName", questName, 801))
-                        {
-                            node->quest.quest_name = questName;
-                        }
-
-                        const char* current_Category = node->quest.category.data();
-                        ImGui::Text("Category"); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::BeginCombo("##category", current_Category))
-                        {
-                            for (int n = 0; n < QuestCategoryVector.size(); n++)
+                            bool is_selected = (current_Category == QuestCategoryVector.at(n));
+                            if (ImGui::Selectable(QuestCategoryVector.at(n).c_str(), is_selected))
                             {
-                                bool is_selected = (current_Category == QuestCategoryVector.at(n));
-                                if (ImGui::Selectable(QuestCategoryVector.at(n).c_str(), is_selected))
-                                {
-                                    current_Category = QuestCategoryVector.at(n).c_str();
-                                    node->quest.category = QuestCategoryVector.at(n);
-                                }
-                                if (is_selected)
-                                    ImGui::SetItemDefaultFocus();
+                                current_Category = QuestCategoryVector.at(n).c_str();
+                                node->quest.category = QuestCategoryVector.at(n);
                             }
-                            ImGui::EndCombo();
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
                         }
-
-                        int amount = node->quest.collection_number;
-
-                        ImGui::Text("Collection Number: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputInt("##collectionNumber", &amount))
-                        {
-                            node->quest.collection_number = amount;
-                        }
-
-                        char* questDescription = (char*)node->quest.description.data();
-
-                        ImGui::Text("Description: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputText("##questDescription", questDescription, 501))
-                        {
-                            node->quest.description = questDescription;
-                        }
-
-                        char* questObjective = (char*)node->quest.objective.data();
-
-                        ImGui::Text("Objective: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputText("##questObjective", questObjective, 501, ImGuiInputTextFlags_None))
-                        {
-                            node->quest.objective = node->quest.objective.empty() ? "" : questObjective;
-                        }
-
+                        ImGui::EndCombo();
                     }
-                    catch (std::exception ex)
+
+                    int amount = node->quest.collection_number;
+
+                    ImGui::Text("Collection Number: "); ImGui::Spacing(); ImGui::SameLine();
+                    if (ImGui::InputInt("##collectionNumber", &amount))
                     {
+                        node->quest.collection_number = amount;
                     }
+
+                    ImGui::Text("Description: "); ImGui::Spacing(); ImGui::SameLine();
+                    ImGui::InputText("##questDescription", &node->quest.description);
+
+                    ImGui::Text("Objective: "); ImGui::Spacing(); ImGui::SameLine();
+                    ImGui::InputText("##questObjective", &node->quest.objective);
+
 
                     ImGui::EndTabItem();
                 }
@@ -1179,10 +1152,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                             ImGui::SameLine();
                             if (ImGui::TreeNode((void*)(intptr_t)k, "Reward %d", k + 1))
                             {
-                                char* item_current = (char*)node->quest.rewards.at(k).dataTable.data();
-
                                 ImGui::Text("DataTable"); ImGui::Spacing(); ImGui::SameLine();
-                                ImGui::InputText("##datatable", item_current, 300);
+                                ImGui::InputText("##datatable", &node->quest.rewards.at(k).dataTable);
                                 ImGui::SameLine();
                                 if (ImGui::Button("..."))
                                 {
@@ -1267,13 +1238,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                     }
                     if (node->quest.condition.questCondition == "Quest")
                     {
-                        char* questNameCon = (char*)node->quest.condition.questName.c_str();
-
                         ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputText("##questNameCondition", questNameCon, 51))
-                        {
-                            node->quest.condition.questName = questNameCon;
-                        }
+                        ImGui::InputText("##questNameCondition", &node->quest.condition.questName);
                     }
                     if (node->quest.condition.questCondition == "Level & Quest")
                     {
@@ -1285,13 +1251,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
                             node->quest.condition.levelCondition = amount;
                         }
 
-                        char* questNameCon = (char*)node->quest.condition.questName.c_str();
-
                         ImGui::Text("Quest Name: "); ImGui::Spacing(); ImGui::SameLine();
-                        if (ImGui::InputText("##questNameCondition", questNameCon, 51))
-                        {
-                            node->quest.condition.questName = questNameCon;
-                        }
+                        ImGui::InputText("##questNameCondition", &node->quest.condition.questName);
                     }
 
 
@@ -1303,13 +1264,8 @@ void ShowLeftPane(float paneWidth, ed::NodeId& Selnode)
             {
                 if (ImGui::BeginTabItem("Character Properties"))
                 {
-                    char* charName = (char*)node->Name.data();
-
                     ImGui::Text("Character Name: "); ImGui::Spacing(); ImGui::SameLine();
-                    if (ImGui::InputTextMultiline("##charName", charName, 21))
-                    {
-                        node->Name = charName;
-                    }
+                    ImGui::InputTextMultiline("##charName", &node->Name);
 
                     ImGui::EndTabItem();
                 }

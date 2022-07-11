@@ -60,6 +60,9 @@
     <ClCompile Include="utilities\widgets.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="external\ImGui\imgui_stdlib.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\ImGui\imgui_internal.h">
@@ -123,6 +126,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="external\stb_image\stb_image.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="external\ImGui\imgui_stdlib.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

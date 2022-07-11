@@ -37,6 +37,7 @@
     <ClCompile Include="external\ImGui\imgui.cpp" />
     <ClCompile Include="external\ImGui\imgui_demo.cpp" />
     <ClCompile Include="external\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="external\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="external\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="utilities\builders.cpp" />
@@ -56,6 +57,7 @@
     <ClInclude Include="external\ImGui\imconfig.h" />
     <ClInclude Include="external\ImGui\imgui.h" />
     <ClInclude Include="external\ImGui\imgui_internal.h" />
+    <ClInclude Include="external\ImGui\imgui_stdlib.h" />
     <ClInclude Include="external\ImGui\imstb_rectpack.h" />
     <ClInclude Include="external\ImGui\imstb_textedit.h" />
     <ClInclude Include="external\ImGui\imstb_truetype.h" />

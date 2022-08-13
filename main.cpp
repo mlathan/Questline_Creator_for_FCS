@@ -1653,9 +1653,18 @@ void CreateLinks()
         {
             for (auto& search : s_Nodes)
             {
-                if (search.quest.quest_id == node.QuestId)
+                if (search.Typ == "Quest")
                 {
-                    s_Links.emplace_back(Link(GetNextLinkId(), node.Outputs[0].ID, search.Inputs[0].ID));
+                    if (search.quest.quest_id == node.QuestId)
+                    {
+                        try
+                        {
+                            s_Links.emplace_back(Link(GetNextLinkId(), node.Outputs[0].ID, search.Inputs[0].ID));
+                        }
+                        catch (std::exception)
+                        {
+                        }
+                    }
                 }
             }
         }

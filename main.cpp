@@ -1293,7 +1293,7 @@ void SetQuestComplete(Node& node)
                     {
                         auto endNode = FindNodeFromPin(link.EndPinID);
 
-                        endNode->quest.condition.questName = node.quest.quest_id;
+                        endNode->quest.condition.questName = node.quest.quest_name;
                     }
                 }
             }
@@ -1313,7 +1313,7 @@ void SetCharacterLink(Node& node)
                 {
                     auto endNode = FindNodeFromPin(link.EndPinID);
 
-                    node.QuestId = endNode->quest.quest_id;
+                    node.quest.quest_name = endNode->quest.quest_name;
                 }
             }
         }
@@ -1559,7 +1559,7 @@ void ExportToJson()
         {
             nlohmann::ordered_json j = nlohmann::json::object();
 
-            j["Name"] = node.quest.name;
+            j["Name"] = node.quest.quest_id;
             j["Quest ID"] = node.quest.quest_id;
             j["Quest Name"] = node.quest.quest_name;
             j["Quest Description"] = node.quest.description;
@@ -1628,8 +1628,6 @@ void ExportToJson()
 
         o.close();
     }
-
-    jsonObjects.~basic_json();
 }
 
 void CreateLinks()
@@ -1640,7 +1638,7 @@ void CreateLinks()
         {
             for (auto& search : s_Nodes)
             {
-                if (search.quest.quest_id == node.quest.condition.questName)
+                if (search.quest.quest_name == node.quest.condition.questName)
                 {
                     s_Links.emplace_back(Link(GetNextLinkId(), search.Outputs[1].ID, node.Inputs[1].ID));
                     s_Links.back().Color = GetIconColor(search.Outputs[1].Type);
@@ -1655,7 +1653,7 @@ void CreateLinks()
             {
                 if (search.Typ == "Quest")
                 {
-                    if (search.quest.quest_id == node.QuestId)
+                    if (search.quest.quest_name == node.QuestId)
                     {
                         try
                         {

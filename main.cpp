@@ -18,6 +18,7 @@
 #define _AFXDLL
 
 #include "QuestClass.h"
+#include "CharacterClass.h"
 #include <iostream>
 #include "json/single_include/nlohmann/json.hpp"
 #include <fstream>
@@ -119,6 +120,7 @@ struct Node
     std::string Typ;
     std::string QuestId;
 
+    CoreData charClass;
 
     std::string State;
     std::string SavedState;
@@ -403,6 +405,10 @@ static Node* SpawnQuestCharacterNode()
 
     s_Nodes.back().Name = "Character";
     s_Nodes.back().Typ = "Character";
+
+    CoreData core;
+
+    s_Nodes.back().charClass = core;
 
     BuildNode(&s_Nodes.back());
 

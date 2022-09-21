@@ -131,6 +131,9 @@
     <ClInclude Include="external\ImGui\imgui_stdlib.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="CharacterClass.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\ImGuiNodes\imgui_node_editor_internal.inl">

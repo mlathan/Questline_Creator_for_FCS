@@ -45,6 +45,7 @@
     <ClCompile Include="utilities\widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CharacterClass.h" />
     <ClInclude Include="external\dx11\imgui_impl_dx11.h" />
     <ClInclude Include="external\dx11\imgui_impl_win32.h" />
     <ClInclude Include="external\ImGuiNodes\application.h" />
